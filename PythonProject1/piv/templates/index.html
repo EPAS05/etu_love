@@ -1,0 +1,56 @@
+{% load static %}
+
+<!DOCTYPE html>
+
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registration page</title>
+        <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+    <h1 class="site-title">Привет, пользователь!</h1>
+    <div class="auth-container register-container">
+        <div class="trigger-text">Sign Up</div>
+        <div class="form-content">
+            <h2 class="form-title">Создать аккаунт</h2>
+            <form id="registrationForm">
+                <div class="form-group">
+                    <label for="fullName" class="sr-only">Полное имя</label>
+                    <input type="text" id="fullName" placeholder="Полное имя" required>
+                </div>
+                <div class="form-group">
+                    <label for="email" class="sr-only">Email</label>
+                    <input type="email" id="email" placeholder="Email" required>
+                </div>
+                <div class="form-group">
+                    <label for="password" class="sr-only">Пароль</label>
+                    <input type="password" id="password" placeholder="Пароль" required>
+                </div>
+                <button type="button" onclick="downloadUserData()" class="download-btn">
+                    Зарегистрироваться
+                </button>
+            </form>
+        </div>
+    </div>
+    <div class="auth-container login-container">
+        <div class="trigger-text">Sign In</div>
+        <div class="form-content">
+            <h2 class="form-title">С возвращением</h2>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="loginEmail" class="sr-only">Email</label>
+                    <input type="email" id="loginEmail" placeholder="Email" required>
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword" class="sr-only">Пароль</label>
+                    <input type="password" id="loginPassword" placeholder="Пароль" required>
+                </div>
+                <button type="submit">Войти</button>
+            </form>
+        </div>
+    </div>
+    <script src="{% static 'js/script.js' %}"></script>
+</body>
+</html>
