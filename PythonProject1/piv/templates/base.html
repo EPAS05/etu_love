@@ -1,0 +1,41 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/user_styles.css' %}">
+</head>
+<body>
+    <div class="user-home">
+        <nav class="sidebar">
+            <div class="star-container">
+                <div class="sidebar-star"></div>
+            </div>
+            <div class="sidebar-content">
+                <a href="{% url 'profile' %}" class="sidebar-item">
+                    <div class="icon"></div>
+                    <span>Профиль</span>
+                </a>
+                <a href="friends.html" class="sidebar-item">
+                    <div class="icon"></div>
+                    <span>Друзья</span>
+                </a>
+                <a href="messages.html" class="sidebar-item">
+                    <div class="icon"></div>
+                    <span>Сообщения</span>
+                </a>
+                <a href="settings.html" class="sidebar-item">
+                    <div class="icon"></div>
+                    <span>Настройки</span>
+                </a>
+            </div>
+        </nav>
+        <main class="main-window">
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+    <script src="{% static 'js/user_script.js' %}"></script>
+</body>
+</html>

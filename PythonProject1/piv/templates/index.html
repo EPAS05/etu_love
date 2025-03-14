@@ -1,56 +1,81 @@
 {% load static %}
 
 <!DOCTYPE html>
-
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registration page</title>
-        <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <title>Главная страница</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
 </head>
 <body>
-    <h1 class="site-title">Привет, пользователь!</h1>
-    <div class="auth-container register-container">
-        <div class="trigger-text">Sign Up</div>
-        <div class="form-content">
-            <h2 class="form-title">Создать аккаунт</h2>
-            <form id="registrationForm">
-                <div class="form-group">
-                    <label for="fullName" class="sr-only">Полное имя</label>
-                    <input type="text" id="fullName" placeholder="Полное имя" required>
+    {% if request.user %}
+        <div class="user-greeting">
+            Вы уже авторизованы как {{ request.user.full_name }}
+            <a href="{% url 'profile' %}">Перейти в профиль</a> |
+            <a href="{% url 'logout' %}">Выйти</a>
+        </div>
+    {% else %}
+        <h1 class="site-title">Привет, пользователь!</h1>
+
+        <div class="auth-container register-container">
+            <div class="trigger-text">Sign Up</div>
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="register">
+                <div class="form-content">
+                    <h2 class="form-title">Создать аккаунт</h2>
+                    {{ reg_form.non_field_errors }}
+
+                    <div class="form-group">
+                        <input type="text" name="full_name" placeholder="Полное имя" required>
+                        {{ reg_form.full_name.errors }}
+                    </div>
+
+                    <div class="form-group">
+                        <input type="email" name="email" placeholder="Email" required>
+                        {{ reg_form.email.errors }}
+                    </div>
+
+                    <div class="form-group">
+                        <input type="password" name="password" placeholder="Пароль" required>
+                    </div>
+
+                    <div class="form-group">
+                        <input type="password" name="confirm_password" placeholder="Подтвердите пароль" required>
+                    </div>
+
+                    <button type="submit" class="download-btn">Зарегистрироваться</button>
                 </div>
-                <div class="form-group">
-                    <label for="email" class="sr-only">Email</label>
-                    <input type="email" id="email" placeholder="Email" required>
-                </div>
-                <div class="form-group">
-                    <label for="password" class="sr-only">Пароль</label>
-                    <input type="password" id="password" placeholder="Пароль" required>
-                </div>
-                <button type="button" onclick="downloadUserData()" class="download-btn">
-                    Зарегистрироваться
-                </button>
             </form>
         </div>
-    </div>
-    <div class="auth-container login-container">
-        <div class="trigger-text">Sign In</div>
-        <div class="form-content">
-            <h2 class="form-title">С возвращением</h2>
-            <form id="loginForm">
-                <div class="form-group">
-                    <label for="loginEmail" class="sr-only">Email</label>
-                    <input type="email" id="loginEmail" placeholder="Email" required>
+
+
+        <div class="auth-container login-container">
+            <div class="trigger-text">Sign In</div>
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="login">
+                <div class="form-content">
+                    <h2 class="form-title">С возвращением</h2>
+                    {{ login_form.non_field_errors }}
+
+                    <div class="form-group">
+                        <input type="email" name="email" placeholder="Email" required>
+                        {{ login_form.email.errors }}
+                    </div>
+
+                    <div class="form-group">
+                        <input type="password" name="password" placeholder="Пароль" required>
+                        {{ login_form.password.errors }}
+                    </div>
+
+                    <button type="submit">Войти</button>
                 </div>
-                <div class="form-group">
-                    <label for="loginPassword" class="sr-only">Пароль</label>
-                    <input type="password" id="loginPassword" placeholder="Пароль" required>
-                </div>
-                <button type="submit">Войти</button>
             </form>
         </div>
-    </div>
+    {% endif %}
+
     <script src="{% static 'js/script.js' %}"></script>
 </body>
 </html>
