@@ -15,21 +15,25 @@
             </div>
             <div class="sidebar-content">
                 <a href="{% url 'profile' %}" class="sidebar-item">
-                    <div class="icon"></div>
+                    <div class="icon">👤</div>
                     <span>Профиль</span>
                 </a>
                 <a href="friends.html" class="sidebar-item">
-                    <div class="icon"></div>
+                    <div class="icon">🤡</div>
                     <span>Друзья</span>
                 </a>
                 <a href="messages.html" class="sidebar-item">
-                    <div class="icon"></div>
+                    <div class="icon">📬</div>
                     <span>Сообщения</span>
                 </a>
                 <a href="settings.html" class="sidebar-item">
-                    <div class="icon"></div>
+                    <div class="icon">⚙️</div>
                     <span>Настройки</span>
                 </a>
+                <div class="sidebar-item" onclick="toggleTheme()">
+                    <div class="icon">🌓</div>
+                    <span>Сменить тему</span>
+                </div>
             </div>
         </nav>
         <main class="main-window">
