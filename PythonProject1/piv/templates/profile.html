@@ -1,24 +1,69 @@
 {% extends 'base.html' %}
 {% load static %}
-
 {% block title %}Профиль{% endblock %}
-
 {% block content %}
-    <div class="user-header">
-        <div>
-            <h1>{{ request.user.full_name }}</h1>
-            <p>📍 Санкт-Петербург, Россия</p>
-        </div>
-        <div class="user-photo"></div>
+<div class="user-header">
+    <div>
+        <h1>{{ request.user.full_name }}</h1>
+        <p>Санкт-Петербург, Россия 📍</p>
+        <button class="info-btn" onclick="openUserInfoModal()">Информация о пользователе</button>
     </div>
-
-    <div class="stats">
-        <div class="stat-box animate">
-            <h3>Профиль</h3>
-            <div class="progress-bar">
-                <div class="progress"></div>
+    <div class="user-photo"></div>
+</div>
+<div class="stats">
+    <div class="stat-box animate">
+        <h3>Профиль</h3>
+        <div class="progress-bar">
+            <div class="progress"></div>
+        </div>
+        <span>50%</span>
+    </div>
+    <div class="stat-box animate">
+        <h3>Друзья</h3>
+        <br>
+        <span>0</span>
+    </div>
+</div>
+<!-- Модальное окно информации -->
+<div class="info-modal" id="infoModal">
+    <div class="info-content">
+        <h2>Подробная информация</h2>
+        <div class="info-list">
+            <div class="info-item">
+                <span>Возраст:</span>
+                <p id="user-age">Не указано</p>
             </div>
-            <span>50%</span>
+            <div class="info-item">
+                <span>Интересы:</span>
+                <p id="user-interests">Не указано</p>
+            </div>
+            <div class="info-item">
+                <span>Любимая музыка:</span>
+                <p id="user-music">Не указано</p>
+            </div>
         </div>
+        <button class="close-modal" onclick="closeUserInfoModal()">_</button>
     </div>
+</div>
+<!-- Модальное окно аватара -->
+<div class="avatar-modal" id="avatarModal">
+    <div class="avatar-picker">
+        <h3>Выберите фото</h3>
+        <div class="avatar-grid">
+            <button class="avatar-option">😀</button>
+            <button class="avatar-option">😎</button>
+            <button class="avatar-option">😱</button>
+            <button class="avatar-option">🤪</button>
+            <button class="avatar-option">🤢</button>
+            <button class="avatar-option">🙃</button>
+            <button class="avatar-option">😈</button>
+            <button class="avatar-option">🤖</button>
+            <button class="avatar-option">🤡</button>
+            <button class="avatar-option">👻</button>
+            <button class="avatar-option">💀</button>
+            <button class="avatar-option">💩</button>
+        </div>
+        <button class="close-modal" onclick="closeavatarModal()">_</button>
+    </div>
+</div>
 {% endblock %}

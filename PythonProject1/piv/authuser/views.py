@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from .forms import RegistrationForm, LoginForm
 from .models import User
-
+from django.contrib.auth.decorators import login_required
 
 def index_page(request):
     reg_form = RegistrationForm()
@@ -37,10 +37,13 @@ def index_page(request):
     })
 
 def profile(request):
-    return render(request, 'profile.html')
-
+    user = request.user
+    if not request.session.get('user_id'):
+        return redirect('index_page')
+    return render(request, 'profile.html', {'user': user})
 
 def logout(request):
     if 'user_id' in request.session:
         del request.session['user_id']
     return redirect('index_page')
+
