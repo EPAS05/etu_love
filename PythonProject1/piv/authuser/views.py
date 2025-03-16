@@ -1,7 +1,6 @@
 from django.shortcuts import render, redirect
-from .forms import RegistrationForm, LoginForm
+from .forms import RegistrationForm, LoginForm, ChangePasswordForm
 from .models import User
-from django.contrib.auth.decorators import login_required
 
 def index_page(request):
     reg_form = RegistrationForm()
@@ -36,11 +35,18 @@ def index_page(request):
         'login_form': login_form
     })
 
+
 def profile(request):
-    user = request.user
     if not request.session.get('user_id'):
         return redirect('index_page')
-    return render(request, 'profile.html', {'user': user})
+
+    try:
+        user = User.objects.get(id=request.session['user_id'])
+        profile = user.profile
+    except User.DoesNotExist:
+        return redirect('index_page')
+
+    return render(request, 'profile.html', {'user': user, 'profile': profile})
 
 def logout(request):
     if 'user_id' in request.session:
@@ -48,10 +54,26 @@ def logout(request):
     return redirect('index_page')
 
 def settings(request):
-    user = request.user
     if not request.session.get('user_id'):
         return redirect('index_page')
-    return render(request, 'settings.html')
+
+    user = User.objects.get(id=request.session['user_id'])
+    password_form = ChangePasswordForm()
+
+    if request.method == 'POST' and 'change_password' in request.POST:
+        password_form = ChangePasswordForm(request.POST)
+        if password_form.is_valid():
+            current_password = password_form.cleaned_data['current_password']
+            new_password = password_form.cleaned_data['new_password']
+            if user.check_password(current_password):
+                user.set_password(new_password)
+                user.save()
+                request.session['user_id'] = user.id
+                return redirect('settings')
+            else:
+                password_form.add_error('current_password', 'Неверный пароль')
+    return render(request, 'settings.html', { 'user': user, 'password_form': password_form })
+
 
 def friends(request):
     user = request.user
