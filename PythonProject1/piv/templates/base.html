@@ -5,7 +5,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}{% endblock %}</title>
-    <link rel="stylesheet" href="{% static 'css/user_styles.css' %}">
+    <!-- Подключаем стили боковой панели -->
+    <link rel="stylesheet" href="{% static 'css/sidebar_styles.css' %}">
+    <!-- Блок для подключения дополнительных стилей -->
+    {% block extra_css %}{% endblock %}
 </head>
 <body>
     <div class="user-home">
@@ -18,15 +21,15 @@
                     <div class="icon">👤</div>
                     <span>Профиль</span>
                 </a>
-                <a href="friends.html" class="sidebar-item">
+                <a href="{% url 'friends' %}" class="sidebar-item">
                     <div class="icon">🤡</div>
                     <span>Друзья</span>
                 </a>
-                <a href="messages.html" class="sidebar-item">
+                <a href="{% url 'messages' %}" class="sidebar-item">
                     <div class="icon">📬</div>
                     <span>Сообщения</span>
                 </a>
-                <a href="settings.html" class="sidebar-item">
+                <a href="{% url 'settings' %}" class="sidebar-item">
                     <div class="icon">⚙️</div>
                     <span>Настройки</span>
                 </a>

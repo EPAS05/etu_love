@@ -1,6 +1,10 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block title %}Профиль{% endblock %}
+{% block extra_css %}
+<!-- Подключаем стили для страницы профиля -->
+<link rel="stylesheet" href="{% static 'css/profile_style.css' %}">
+{% endblock %}
 {% block content %}
 <div class="user-header">
     <div>
