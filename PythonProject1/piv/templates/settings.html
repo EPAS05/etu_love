@@ -1,58 +1,90 @@
-{% extends 'base.html' %}
+﻿{% extends 'base.html' %}
 {% load static %}
-{% block title %}?????????{% endblock %}
+{% block title %}Настройки{% endblock %}
 {% block extra_css %}
-<!-- ?????????? ????? ??? ???????? ???????? -->
 <link rel="stylesheet" href="{% static 'css/settings_style.css' %}">
 {% endblock %}
 {% block content %}
 <div class="settings-container">
-    <h1>?????????</h1>
+    <form class="settings-form">
+        <h1>Настройки профиля</h1>
 
-    <!-- ????? ????????? -->
-    <section class="settings-section">
-        <h2>????? ?????????</h2>
-        <div class="setting-item">
-            <label for="theme-toggle">???? ??????????:</label>
-            <button id="theme-toggle" onclick="toggleTheme()">??????? ????</button>
-        </div>
-        <div class="setting-item">
-            <label for="language-select">????:</label>
-            <select id="language-select">
-                <option value="ru">???????</option>
-                <option value="en">??????????</option>
-            </select>
-        </div>
-    </section>
+        <label for="name">Имя:</label>
+        <input type="text" id="name" name="name" placeholder="Введите ваше имя">
 
-    <!-- ????????? ???????? -->
-    <section class="settings-section">
-        <h2>???????</h2>
-        <div class="setting-item">
-            <label>Email:</label>
-            <span>{{ request.user.email }}</span>
-        </div>
-        <div class="setting-item">
-            <label>??????:</label>
-            <button onclick="changePassword()">???????? ??????</button>
-        </div>
-    </section>
+        <label for="birthday">Дата рождения:</label>
+        <input type="date" id="birthday" name="birthday">
 
-    <!-- ????????? ??????????? -->
-    <section class="settings-section">
-        <h2>???????????</h2>
-        <div class="setting-item">
-            <label>
-                <input type="checkbox" checked>
-                Email ???????????
-            </label>
-        </div>
-        <div class="setting-item">
-            <label>
-                <input type="checkbox">
-                ??????????? ? ??????????
-            </label>
-        </div>
-    </section>
+        <label for="email">Электронная почта:</label>
+        <input type="email" id="email" name="email" placeholder="example@mail.com">
+
+        <!-- Кнопка для изменения пароля -->
+        <button type="button" id="changePasswordBtn" class="save-btn">Изменить пароль</button>
+
+        <!-- Здесь можно добавить другие поля по необходимости -->
+
+        <button type="button" class="save-btn">Сохранить</button>
+    </form>
 </div>
+
+<!-- Модальное окно для изменения пароля -->
+<div id="passwordModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2 style="color: #5B5F84;">Изменить пароль</h2>
+        <form method="post" id="passwordForm">
+            {% csrf_token %}
+
+            <!-- Текущий пароль -->
+            <div class="form-group">
+                <label for="id_current_password">Текущий пароль:</label>
+                {{ password_form.current_password }}
+                {{ password_form.current_password.errors }}
+            </div>
+
+            <!-- Новый пароль -->
+            <div class="form-group">
+                <label for="id_new_password">Новый пароль:</label>
+                {{ password_form.new_password }}
+                {{ password_form.new_password.errors }}
+            </div>
+
+            <!-- Подтверждение пароля -->
+            <div class="form-group">
+                <label for="id_confirm_password">Подтверждение:</label>
+                {{ password_form.confirm_password }}
+                {{ password_form.confirm_password.errors }}
+            </div>
+
+            {% if password_form.non_field_errors %}
+            <div class="alert alert-danger">
+                {{ password_form.non_field_errors }}
+            </div>
+            {% endif %}
+
+            <span></span>
+
+            <button type="submit" name="change_password" class="save-btn">Сохранить пароль</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Получаем элементы модального окна и кнопки
+    var modal = document.getElementById('passwordModal');
+    var btn = document.getElementById('changePasswordBtn');
+    var span = document.getElementsByClassName('close')[0];
+
+    // Открытие модального окна при клике на кнопку
+    btn.onclick = function () {
+        modal.style.display = "block";
+    }
+
+    // Закрытие модального окна при клике вне его области
+    window.onclick = function (event) {
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    }
+</script>
 {% endblock %}
