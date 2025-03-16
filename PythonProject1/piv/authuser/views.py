@@ -47,3 +47,20 @@ def logout(request):
         del request.session['user_id']
     return redirect('index_page')
 
+def settings(request):
+    user = request.user
+    if not request.session.get('user_id'):
+        return redirect('index_page')
+    return render(request, 'settings.html')
+
+def friends(request):
+    user = request.user
+    if not request.session.get('user_id'):
+        return redirect('index_page')
+    return render(request, 'friends.html')
+
+def messages(request):
+    user = request.user
+    if not request.session.get('user_id'):
+        return redirect('index_page')
+    return render(request, 'messages.html')
