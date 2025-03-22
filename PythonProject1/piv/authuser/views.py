@@ -107,7 +107,7 @@ def edit_extra_profile(request):
     else:
         form = EditExtraProfileForm(instance=profile, user=user)
 
-    return render(request, 'edit_extra_profile.html', {'form': form})
+    return render(request, 'edit_profile_extra.html', {'form': form})
 
 
 
