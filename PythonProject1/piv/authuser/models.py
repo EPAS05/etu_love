@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.hashers import make_password, check_password
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.templatetags.static import static
 
 
 class User(models.Model):
@@ -9,6 +10,8 @@ class User(models.Model):
     email = models.EmailField(unique=True)
     password = models.CharField(max_length=128)
     is_active = models.BooleanField(default=True)
+    is_staff = models.BooleanField(default=False)
+    is_superuser = models.BooleanField(default=False)
 
     def set_password(self, raw_password):
         self.password = make_password(raw_password)
@@ -20,9 +23,18 @@ class User(models.Model):
     def is_authenticated(self):
         return self.is_active
 
+    def has_perm(self, perm, obj=None):
+        return self.is_superuser  # Только суперпользователь имеет все права
+
+    def has_module_perms(self, app_label):
+        return self.is_superuser
+
+    def get_username(self):
+        return self.email
+
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
-    avatar = models.ImageField(upload_to='avatars/', blank=True, null=True)
+    avatar = models.ImageField(upload_to='avatars/', blank=True, null=True, default='avatars/default_avatar.jpg')
     photo1 = models.ImageField(upload_to='profile_photos/', blank=True, null=True, verbose_name="Фото 1")
     photo2 = models.ImageField(upload_to='profile_photos/', blank=True, null=True, verbose_name="Фото 2")
     photo3 = models.ImageField(upload_to='profile_photos/', blank=True, null=True, verbose_name="Фото 3")
@@ -34,7 +46,6 @@ class Profile(models.Model):
     bio = models.CharField(max_length=200, blank=True, null=True)
     city = models.ForeignKey('City', on_delete=models.SET_NULL, blank=True, null=True)
     interests = models.ManyToManyField('Interest', blank=True)
-    music = models.ManyToManyField('Music', blank=True)
     height = models.PositiveIntegerField(blank=True, null=True)
     zodiac_sign = models.ForeignKey('Zodiac', on_delete=models.SET_NULL, blank=True, null=True)
     smoking = models.ForeignKey('Smoking', on_delete=models.SET_NULL, blank=True, null=True)
@@ -43,13 +54,9 @@ class Profile(models.Model):
     education = models.ForeignKey('Education', on_delete=models.SET_NULL, blank=True, null=True)
     children = models.ForeignKey('Children', on_delete=models.SET_NULL, blank=True, null=True)
     language = models.ManyToManyField('Language', blank=True, null=True)
-    theme_id = models.PositiveIntegerField(default=1)
     emodji_id = models.PositiveIntegerField(default=1)
 
 class Interest(models.Model):
-    name = models.CharField(max_length=20, unique=True)
-
-class Music(models.Model):
     name = models.CharField(max_length=20, unique=True)
 
 class City(models.Model):

@@ -1,34 +1,133 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %}Профиль{% endblock %}
+
+{% block title %}
+    Профиль
+{% endblock %}
+
 {% block extra_css %}
-<!-- Подключаем стили для страницы профиля -->
 <link rel="stylesheet" href="{% static 'css/profile_style.css' %}">
 {% endblock %}
+
 {% block content %}
-<div class="user-header">
-    <div>
-        <h1>{{ request.user.full_name }}</h1>
-        <p>Санкт-Петербург, Россия 📍</p>
-        <button class="info-btn" onclick="openUserInfoModal()">Информация о пользователе</button>
-    </div>
-    <div class="user-photo"></div>
-</div>
+<img src="{{ user.profile.avatar.url }}" alt="Avatar">
 <div class="stats">
-    <div class="stat-box animate">
-        <h3>Профиль</h3>
-        <div class="progress-bar">
-            <div class="progress"></div>
+    {# ============================== Профиль пользователя ============================== #}
+    <div class="stat-box animate square-box">
+        <div class="profile-header">
+            <h2 class="profile-info vertical-layout">
+                {{ request.user.full_name }}
+                <div class="user-photo">
+                    <img src="{{ user.profile.avatar.url }}" alt="Avatar">
+                </div>
+            </h2>
+            <button class="info-btn" onclick="openUserInfoModal()">Информация</button>
         </div>
-        <span>50%</span>
-    </div>
-    <div class="stat-box animate">
-        <h3>Друзья</h3>
+        <h2>О себе</h2>
         <br>
-        <span>0</span>
+        <span>
+            заполнить заполнить заполнить заполнить заполнить заполнить заполнить
+            заполнить заполнить заполнить заполнить заполнить заполнить заполнить заполнить
+            заполнить заполнить заполнить заполнить заполнить заполнить заполнить заполнить заполнить
+            заполнить заполнить заполнить заполнить заполнить заполнить заполнить заполнить
+            заполнить заполнить заполнить заполнить заполнить заполнить заполнить заполнить заполнить
+            заполнить заполнить заполнить заполнить заполнить заполнить заполнить заполнить
+            заполнить заполнить заполнить заполнить заполнить заполнить заполнить заполнить заполнить
+            заполнить заполнить заполнить заполнить заполнить заполнить заполнить заполнить
+            заполнить заполнить заполнить заполнить заполнить заполнить заполнить заполнить
+        </span>
+    </div>
+
+    {# ============================== Информация о пользователе ============================== #}
+    <div class="stat-box animate rectangle-box skip-box">
+        <h2>Информация о пользователе</h2>
+        <div>
+            <h3>| Город</h3>
+            <span>заполнить</span>
+        </div>
+        <div>
+            <h3>| Должность</h3>
+            <span>заполнить</span>
+        </div>
+        <div>
+            <h3>| Образование</h3>
+            <span>заполнить</span>
+        </div>
+        <div>
+            <h3>| Рост</h3>
+            <span>заполнить</span>
+        </div>
+        <div>
+            <h3>| Знак зодиака</h3>
+            <span>заполнить</span>
+        </div>
+        <div>
+            <h3>| Религия</h3>
+            <span>заполнить</span>
+        </div>
+        <div>
+            <h3>| Отношение к алкоголю</h3>
+            <span>заполнить</span>
+        </div>
+        <div>
+            <h3>| Отношение к курению</h3>
+            <span>заполнить</span>
+        </div>
+        <div>
+            <h3>| ЕЩЕ ЧТО ТО</h3>
+            <span>заполнить</span>
+        </div>
+    </div>
+
+    {# ============================== Дополнительная информация ============================== #}
+    <div class="stat-box animate rectangle-box skip-box dlc-block">
+        {# Фотографии пользователя #}
+        <div class="photos-section">
+            <h2>Фотографии (0)</h2>
+            <div class="photos-grid">
+                <div class="large-photo"></div>
+                <div class="small-photo"></div>
+                <div class="small-photo"></div>
+            </div>
+        </div>
+
+        {# Раздел "Ищу" для друзей, партнёров и пр. #}
+        <div class="looking-for">
+            <h2>Ищу: жену/мужа/друзей</h2>
+        </div>
+
+        {# Увлечения пользователя #}
+        <div class="hobbies">
+            <h2>Увлечения:</h2>
+            <div class="hobbies-list">
+                <span class="hobby-item">Книги</span>
+                <span class="hobby-item">Игры</span>
+                {# Добавляйте новые элементы по мере необходимости #}
+            </div>
+        </div>
+    </div>
+
+    {# ============================== Статистические блоки ============================== #}
+    <div class="stat-box animate min-box">
+        <div class="three-squares">
+            <div class="square">
+                <h2>Друзья</h2>
+                <p class="count">0</p>
+            </div>
+            <div class="square">
+                <h2>Подписчики</h2>
+                <p class="count">0</p>
+            </div>
+            <div class="square">
+                <h2>Деньги</h2>
+                <p class="count">0</p>
+            </div>
+        </div>
     </div>
 </div>
-<!-- Модальное окно информации -->
+
+{# ============================== Модальные окна ============================== #}
+{# Модальное окно для подробной информации #}
 <div class="info-modal" id="infoModal">
     <div class="info-content">
         <h2>Подробная информация</h2>
@@ -46,10 +145,10 @@
                 <p id="user-music">Не указано</p>
             </div>
         </div>
-        <button class="close-modal" onclick="closeUserInfoModal()">_</button>
     </div>
 </div>
-<!-- Модальное окно аватара -->
+
+{# Модальное окно для выбора аватара #}
 <div class="avatar-modal" id="avatarModal">
     <div class="avatar-picker">
         <h3>Выберите фото</h3>
@@ -67,7 +166,6 @@
             <button class="avatar-option">💀</button>
             <button class="avatar-option">💩</button>
         </div>
-        <button class="close-modal" onclick="closeavatarModal()">_</button>
     </div>
 </div>
 {% endblock %}

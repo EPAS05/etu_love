@@ -1,5 +1,5 @@
 from django import forms
-from .models import *
+from .models import User, Profile, Interest, City, Language, Children, Smoking, Alcohol, Religion, Zodiac, Education, Gender
 from django.core.exceptions import ValidationError
 
 class RegistrationForm(forms.Form):
@@ -47,16 +47,57 @@ class ChangePasswordForm(forms.Form):
 
         return cleaned_data
 
-
-class EditProfileForm(forms.ModelForm):
-    interests = forms.ModelMultipleChoiceField(
-        queryset=Interest.objects.all(),
-        widget=forms.CheckboxSelectMultiple,
-        required=False
+class EditMainProfileForm(forms.ModelForm):
+    full_name = forms.CharField(
+        max_length=100,
+        label="Полное имя",
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Иванов Иван Иванович'})
     )
 
-    music = forms.ModelMultipleChoiceField(
-        queryset=Music.objects.all(),
+    class Meta:
+        fields = ['avatar', 'gender', 'birth_date', 'city', 'bio']
+        widgets = {
+            'birth_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'bio': forms.Textarea(attrs={'rows': 3, 'class': 'form-control', 'maxlength': 200}),
+            'city': forms.Select(attrs={'class': 'form-select'}),
+            'gender': forms.Select(attrs={'class': 'form-select'}),
+            'photo1': forms.FileInput(attrs={'class': 'form-control'}),
+        }
+
+    def _validate_image(self, image):
+        if image:
+            if image.size > 5 * 1024 * 1024:
+                raise forms.ValidationError("Максимальный размер файла - 5 МБ")
+            if not image.name.lower().endswith(('.png', '.jpg', '.jpeg', '.webp')):
+                raise forms.ValidationError("Допустимые форматы: PNG, JPG, JPEG, WEBP")
+        return image
+
+    def clean_avatar(self):
+        return self._validate_image(self.cleaned_data.get('avatar'))
+
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+
+        if user:
+            self.fields['full_name'].initial = user.full_name
+            self.fields['city'].empty_label = "Не указано"
+            self.fields['gender'].empty_label = "Не указано"
+
+    def clean_full_name(self):
+        full_name = self.cleaned_data.get('full_name')
+        if len(full_name) < 3:
+            raise forms.ValidationError("Полное имя должно содержать не менее 3 символов")
+        return full_name
+
+    def save(self, user, commit=True):
+        user.full_name = self.cleaned_data.get('full_name')
+        user.save()
+        return super().save(commit=commit)
+
+class EditExtraProfileForm(forms.ModelForm):
+    interests = forms.ModelMultipleChoiceField(
+        queryset=Interest.objects.all(),
         widget=forms.CheckboxSelectMultiple,
         required=False
     )
@@ -70,27 +111,20 @@ class EditProfileForm(forms.ModelForm):
     class Meta:
         model = Profile
         fields = [
-            'avatar', 'photo1', 'photo2', 'photo3', 'photo4', 'photo5',
-            'gender', 'job', 'birth_date', 'bio', 'height', 'city',
+            'photo1', 'photo2', 'photo3', 'photo4', 'photo5',
+            'job', 'height',
             'zodiac_sign', 'smoking', 'alcohol', 'religion', 'education',
-            'children', 'interests', 'music', 'language', 'theme_id', 'emodji_id'
+            'children', 'interests', 'language',
         ]
         widgets = {
-            'birth_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
-            'bio': forms.Textarea(attrs={'rows': 3, 'class': 'form-control', 'maxlength': 200}),
             'height': forms.NumberInput(attrs={'class': 'form-control', 'min': 100, 'max': 250}),
             'job': forms.TextInput(attrs={'class': 'form-control'}),
-            'theme_id': forms.NumberInput(attrs={'class': 'form-control', 'min': 1}),
-            'emodji_id': forms.NumberInput(attrs={'class': 'form-control', 'min': 1}),
-            'gender': forms.Select(attrs={'class': 'form-select'}),
-            'city': forms.Select(attrs={'class': 'form-select'}),
             'zodiac_sign': forms.Select(attrs={'class': 'form-select'}),
             'smoking': forms.Select(attrs={'class': 'form-select'}),
             'alcohol': forms.Select(attrs={'class': 'form-select'}),
             'religion': forms.Select(attrs={'class': 'form-select'}),
             'education': forms.Select(attrs={'class': 'form-select'}),
             'children': forms.Select(attrs={'class': 'form-select'}),
-            'avatar': forms.FileInput(attrs={'class': 'form-control'}),
             'photo1': forms.FileInput(attrs={'class': 'form-control'}),
             'photo2': forms.FileInput(attrs={'class': 'form-control'}),
             'photo3': forms.FileInput(attrs={'class': 'form-control'}),
@@ -118,9 +152,6 @@ class EditProfileForm(forms.ModelForm):
                 raise forms.ValidationError("Допустимые форматы: PNG, JPG, JPEG, WEBP")
         return image
 
-    def clean_avatar(self):
-        return self._validate_image(self.cleaned_data.get('avatar'))
-
     def clean_photo1(self):
         return self._validate_image(self.cleaned_data.get('photo1'))
 
@@ -135,3 +166,9 @@ class EditProfileForm(forms.ModelForm):
 
     def clean_photo5(self):
         return self._validate_image(self.cleaned_data.get('photo5'))
+
+    def save(self, user, commit=True):
+        profile = Profile.objects.get(user=user)
+        profile.interests.set(self.cleaned_data.get('interests'))
+        profile.language.set(self.cleaned_data.get('language'))
+        return super().save(commit=commit)
