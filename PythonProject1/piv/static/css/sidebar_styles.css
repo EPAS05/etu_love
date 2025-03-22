@@ -62,8 +62,15 @@ body {
     flex-direction: column;
     gap: 15px;
     padding: 0 10px;
+    justify-content: space-between; /* Элементы теперь распределяются так, чтобы кнопка была внизу */
 }
 
+/* ==================== Стиль для кнопки "Сменить тему" ==================== */
+.theme-toggle {
+    margin-top: auto; /* Дает гарантию, что кнопка будет внизу */
+}
+
+/* ???????? ??????? ? ??????? ?????? */
 .sidebar-item {
     display: flex;
     align-items: center;
@@ -101,4 +108,10 @@ body {
 
 .sidebar:hover .sidebar-item span {
     opacity: 1;
+}
+
+.sidebar-item .icon img {
+    width: 24px; /* задаёт ширину иконки */
+    height: 24px; /* задаёт высоту иконки */
+    object-fit: contain; /* гарантирует корректное масштабирование изображения */
 }
