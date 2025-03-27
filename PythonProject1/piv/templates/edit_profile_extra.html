@@ -60,34 +60,17 @@
             {{ form.language }}
         </div>
 
-        <div class="form-group">
-            <label for="{{ form.photo1.id_for_label }}">Фото 1:</label>
-            {{ form.photo1 }}
+         <div class="form-group">
+            <label>{{ form.photos.label }}</label>
+            {{ form.photos }}
+            <small class="form-text text-muted">{{ form.photos.help_text }}</small>
         </div>
 
-        <div class="form-group">
-            <label for="{{ form.photo2.id_for_label }}">Фото 2:</label>
-            {{ form.photo2 }}
-        </div>
-
-        <div class="form-group">
-            <label for="{{ form.photo3.id_for_label }}">Фото 3:</label>
-            {{ form.photo3 }}
-        </div>
-
-        <div class="form-group">
-            <label for="{{ form.photo4.id_for_label }}">Фото 4:</label>
-            {{ form.photo4 }}
-        </div>
-
-        <div class="form-group">
-            <label for="{{ form.photo5.id_for_label }}">Фото 5:</label>
-            {{ form.photo5 }}
-        </div>
 
         <button type="submit" class="save-btn">Сохранить информацию</button>
     </form>
 </div>
+
 
 </body>
 </html>

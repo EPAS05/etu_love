@@ -1,6 +1,26 @@
 from django import forms
-from .models import User, Profile, Interest, City, Language, Children, Smoking, Alcohol, Religion, Zodiac, Education, Gender
+from .models import User, Profile, Interest, City, Language, Children, Smoking, Alcohol, Religion, Zodiac, Education, Gender, ProfilePhoto
 from django.core.exceptions import ValidationError
+from django.core.validators import FileExtensionValidator
+
+class MultipleFileInput(forms.ClearableFileInput):
+    allow_multiple_selected = True
+
+
+class MultipleFileField(forms.FileField):
+    def __init__(self, *args, **kwargs):
+        kwargs.setdefault("widget", MultipleFileInput())
+        super().__init__(*args, **kwargs)
+
+    def clean(self, data, initial=None):
+        if not data:
+            return []
+
+        cleaned_data = []
+        for d in data:
+            cleaned = super(MultipleFileField, self).clean(d, initial)
+            cleaned_data.append(cleaned)
+        return cleaned_data
 
 class RegistrationForm(forms.Form):
     full_name = forms.CharField(label='Полное имя')
@@ -55,13 +75,14 @@ class EditMainProfileForm(forms.ModelForm):
     )
 
     class Meta:
+        model = Profile
         fields = ['avatar', 'gender', 'birth_date', 'city', 'bio']
         widgets = {
             'birth_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
             'bio': forms.Textarea(attrs={'rows': 3, 'class': 'form-control', 'maxlength': 200}),
             'city': forms.Select(attrs={'class': 'form-select'}),
             'gender': forms.Select(attrs={'class': 'form-select'}),
-            'photo1': forms.FileInput(attrs={'class': 'form-control'}),
+            'avatar': forms.ClearableFileInput(attrs={'class': 'form-control'})
         }
 
     def _validate_image(self, image):
@@ -93,7 +114,14 @@ class EditMainProfileForm(forms.ModelForm):
     def save(self, user, commit=True):
         user.full_name = self.cleaned_data.get('full_name')
         user.save()
-        return super().save(commit=commit)
+        profile = super().save(commit=False)
+
+        if not self.cleaned_data.get('avatar'):
+            profile.avatar = 'avatars/default_avatar.jpg'
+
+        if commit:
+            profile.save()
+        return profile
 
 class EditExtraProfileForm(forms.ModelForm):
     interests = forms.ModelMultipleChoiceField(
@@ -108,34 +136,36 @@ class EditExtraProfileForm(forms.ModelForm):
         required=False
     )
 
+    photos = MultipleFileField(
+        required=False,
+        label="Добавить фотографии",
+        help_text="Можно выбрать несколько файлов",
+        validators=[FileExtensionValidator(allowed_extensions=['jpg', 'jpeg', 'png', 'webp'])]
+    )
+
     class Meta:
         model = Profile
         fields = [
-            'photo1', 'photo2', 'photo3', 'photo4', 'photo5',
-            'job', 'height',
-            'zodiac_sign', 'smoking', 'alcohol', 'religion', 'education',
-            'children', 'interests', 'language',
+            'job', 'height', 'zodiac_sign',
+            'smoking', 'alcohol', 'religion',
+            'education', 'children', 'interests',
+            'language'
         ]
         widgets = {
-            'height': forms.NumberInput(attrs={'class': 'form-control', 'min': 100, 'max': 250}),
-            'job': forms.TextInput(attrs={'class': 'form-control'}),
-            'zodiac_sign': forms.Select(attrs={'class': 'form-select'}),
-            'smoking': forms.Select(attrs={'class': 'form-select'}),
-            'alcohol': forms.Select(attrs={'class': 'form-select'}),
-            'religion': forms.Select(attrs={'class': 'form-select'}),
-            'education': forms.Select(attrs={'class': 'form-select'}),
-            'children': forms.Select(attrs={'class': 'form-select'}),
-            'photo1': forms.FileInput(attrs={'class': 'form-control'}),
-            'photo2': forms.FileInput(attrs={'class': 'form-control'}),
-            'photo3': forms.FileInput(attrs={'class': 'form-control'}),
-            'photo4': forms.FileInput(attrs={'class': 'form-control'}),
-            'photo5': forms.FileInput(attrs={'class': 'form-control'}),
+            'height': forms.NumberInput(attrs={'min': 100, 'max': 250}),
+            'job': forms.TextInput(),
+            'zodiac_sign': forms.Select(),
+            'smoking': forms.Select(),
+            'alcohol': forms.Select(),
+            'religion': forms.Select(),
+            'education': forms.Select(),
+            'children': forms.Select(),
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        for field in ['gender', 'city', 'zodiac_sign', 'smoking', 'alcohol',
-                      'religion', 'education', 'children']:
+        for field in ['zodiac_sign', 'smoking', 'alcohol',
+                     'religion', 'education', 'children']:
             self.fields[field].empty_label = "Не указано"
 
     def clean_job(self):
@@ -144,31 +174,19 @@ class EditExtraProfileForm(forms.ModelForm):
             raise forms.ValidationError("Максимальная длина - 20 символов")
         return job
 
-    def _validate_image(self, image):
-        if image:
-            if image.size > 5 * 1024 * 1024:
-                raise forms.ValidationError("Максимальный размер файла - 5 МБ")
-            if not image.name.lower().endswith(('.png', '.jpg', '.jpeg', '.webp')):
-                raise forms.ValidationError("Допустимые форматы: PNG, JPG, JPEG, WEBP")
-        return image
+    def clean_photos(self):
+        photos = self.files.getlist('photos')
+        max_size = 5 * 1024 * 1024  # 5MB
 
-    def clean_photo1(self):
-        return self._validate_image(self.cleaned_data.get('photo1'))
+        for photo in photos:
+            if photo.size > max_size:
+                raise forms.ValidationError(
+                    f"Файл {photo.name} слишком большой (максимум 5 МБ)"
+                )
+        return photos
 
-    def clean_photo2(self):
-        return self._validate_image(self.cleaned_data.get('photo2'))
-
-    def clean_photo3(self):
-        return self._validate_image(self.cleaned_data.get('photo3'))
-
-    def clean_photo4(self):
-        return self._validate_image(self.cleaned_data.get('photo4'))
-
-    def clean_photo5(self):
-        return self._validate_image(self.cleaned_data.get('photo5'))
-
-    def save(self, user, commit=True):
-        profile = Profile.objects.get(user=user)
-        profile.interests.set(self.cleaned_data.get('interests'))
-        profile.language.set(self.cleaned_data.get('language'))
-        return super().save(commit=commit)
+    def save(self, commit=True):
+        instance = super().save(commit=commit)
+        for photo in self.cleaned_data.get('photos', []):
+            ProfilePhoto.objects.create(profile=instance, image=photo)
+        return instance
