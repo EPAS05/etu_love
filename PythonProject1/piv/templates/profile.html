@@ -10,31 +10,24 @@
 {% endblock %}
 
 {% block content %}
-<img src="{{ user.profile.avatar.url }}" alt="Avatar">
 <div class="stats">
     {# ============================== Профиль пользователя ============================== #}
     <div class="stat-box animate square-box">
         <div class="profile-header">
+
+            <div>
+                <img src="{{ user.profile.avatar.url }}" width="200" height="200" border="5" alt="Avatar">
+            </div>
+
             <h2 class="profile-info vertical-layout">
                 {{ request.user.full_name }}
-                <div class="user-photo">
-                    <img src="{{ user.profile.avatar.url }}" alt="Avatar">
-                </div>
             </h2>
             <button class="info-btn" onclick="openUserInfoModal()">Информация</button>
         </div>
         <h2>О себе</h2>
         <br>
         <span>
-            заполнить заполнить заполнить заполнить заполнить заполнить заполнить
-            заполнить заполнить заполнить заполнить заполнить заполнить заполнить заполнить
-            заполнить заполнить заполнить заполнить заполнить заполнить заполнить заполнить заполнить
-            заполнить заполнить заполнить заполнить заполнить заполнить заполнить заполнить
-            заполнить заполнить заполнить заполнить заполнить заполнить заполнить заполнить заполнить
-            заполнить заполнить заполнить заполнить заполнить заполнить заполнить заполнить
-            заполнить заполнить заполнить заполнить заполнить заполнить заполнить заполнить заполнить
-            заполнить заполнить заполнить заполнить заполнить заполнить заполнить заполнить
-            заполнить заполнить заполнить заполнить заполнить заполнить заполнить заполнить
+            {{ user.profile.bio }}
         </span>
     </div>
 
@@ -43,35 +36,35 @@
         <h2>Информация о пользователе</h2>
         <div>
             <h3>| Город</h3>
-            <span>заполнить</span>
+            <span>{{ user.profile.city }}</span>
         </div>
         <div>
             <h3>| Должность</h3>
-            <span>заполнить</span>
+            <span>{{ user.profile.job }}</span>
         </div>
         <div>
             <h3>| Образование</h3>
-            <span>заполнить</span>
+            <span>{{ user.profile.education }}</span>
         </div>
         <div>
             <h3>| Рост</h3>
-            <span>заполнить</span>
+            <span>{{ user.profile.height }}</span>
         </div>
         <div>
             <h3>| Знак зодиака</h3>
-            <span>заполнить</span>
+            <span>{{ user.profile.zodiac_sign }}</span>
         </div>
         <div>
             <h3>| Религия</h3>
-            <span>заполнить</span>
+            <span>{{ user.profile.religion }}</span>
         </div>
         <div>
             <h3>| Отношение к алкоголю</h3>
-            <span>заполнить</span>
+            <span>{{ user.profile.alcohol }}</span>
         </div>
         <div>
             <h3>| Отношение к курению</h3>
-            <span>заполнить</span>
+            <span>{{ user.profile.smoking }}</span>
         </div>
         <div>
             <h3>| ЕЩЕ ЧТО ТО</h3>
@@ -83,13 +76,26 @@
     <div class="stat-box animate rectangle-box skip-box dlc-block">
         {# Фотографии пользователя #}
         <div class="photos-section">
-            <h2>Фотографии (0)</h2>
-            <div class="photos-grid">
-                <div class="large-photo"></div>
-                <div class="small-photo"></div>
-                <div class="small-photo"></div>
+    <h2>Фотографии ({{ profile.photos.count }})</h2>
+    <div class="photos-grid">
+        {% for photo in profile.photos.all|dictsortreversed:"uploaded_at"|slice:":3" %}
+            <div class="{% if forloop.first %}large-photo{% else %}small-photo{% endif %}">
+                <img src="{{ photo.image.url }}"
+                     alt="Фото пользователя {{ photo.profile.user.full_name }}"
+                     class="photo-image">
             </div>
-        </div>
+        {% endfor %}
+
+        {# Блок с количеством дополнительных фото #}
+        {% with remaining=profile.photos.count|add:"-3" %}
+            {% if remaining > 0 %}
+                <div class="small-photo more-photos">
+                    <span class="plus-icon">+{{ remaining }}</span>
+                </div>
+            {% endif %}
+        {% endwith %}
+    </div>
+</div>
 
         {# Раздел "Ищу" для друзей, партнёров и пр. #}
         <div class="looking-for">

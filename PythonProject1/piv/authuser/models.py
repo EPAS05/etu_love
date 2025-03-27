@@ -2,8 +2,7 @@ from django.db import models
 from django.contrib.auth.hashers import make_password, check_password
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from django.templatetags.static import static
-
+import os
 
 class User(models.Model):
     full_name = models.CharField(max_length=100)
@@ -35,11 +34,6 @@ class User(models.Model):
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     avatar = models.ImageField(upload_to='avatars/', blank=True, null=True, default='avatars/default_avatar.jpg')
-    photo1 = models.ImageField(upload_to='profile_photos/', blank=True, null=True, verbose_name="Фото 1")
-    photo2 = models.ImageField(upload_to='profile_photos/', blank=True, null=True, verbose_name="Фото 2")
-    photo3 = models.ImageField(upload_to='profile_photos/', blank=True, null=True, verbose_name="Фото 3")
-    photo4 = models.ImageField(upload_to='profile_photos/', blank=True, null=True, verbose_name="Фото 4")
-    photo5 = models.ImageField(upload_to='profile_photos/', blank=True, null=True, verbose_name="Фото 5")
     gender = models.ForeignKey('Gender', on_delete=models.SET_NULL, blank=True, null=True)
     job = models.CharField(max_length=20, blank=True, null=True)
     birth_date = models.DateField(blank=True, null=True)
@@ -56,35 +50,73 @@ class Profile(models.Model):
     language = models.ManyToManyField('Language', blank=True, null=True)
     emodji_id = models.PositiveIntegerField(default=1)
 
+def profile_photo_upload_to(instance, filename):
+    return os.path.join("profile_photos", str(instance.profile.user.id), filename)
+
+class ProfilePhoto(models.Model):
+    profile = models.ForeignKey('Profile', on_delete=models.CASCADE, related_name="photos")
+    image = models.ImageField(upload_to=profile_photo_upload_to)
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Photo {self.id} for {self.profile.user.get_username()}"
+
 class Interest(models.Model):
     name = models.CharField(max_length=20, unique=True)
 
 class City(models.Model):
     name = models.CharField(max_length=20, unique=True)
 
+    def __str__(self):
+        return self.name
+
 class Language(models.Model):
     name = models.CharField(max_length=20, unique=True)
+
+    def __str__(self):
+        return self.name
 
 class Children(models.Model):
     name = models.CharField(max_length=20, unique=True)
 
+    def __str__(self):
+        return self.name
+
 class Smoking(models.Model):
     name = models.CharField(max_length=20, unique=True)
+
+    def __str__(self):
+        return self.name
 
 class Alcohol(models.Model):
     name = models.CharField(max_length=20, unique=True)
 
+    def __str__(self):
+        return self.name
+
 class Religion(models.Model):
     name = models.CharField(max_length=20, unique=True)
+
+    def __str__(self):
+        return self.name
 
 class Zodiac(models.Model):
     name = models.CharField(max_length=20, unique=True)
 
+    def __str__(self):
+        return self.name
+
 class Education(models.Model):
     name = models.CharField(max_length=20, unique=True)
 
+    def __str__(self):
+        return self.name
+
 class Gender(models.Model):
     name = models.CharField(max_length=20, unique=True)
+
+    def __str__(self):
+        return self.name
 
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):

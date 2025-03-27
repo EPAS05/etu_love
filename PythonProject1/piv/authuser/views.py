@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from .forms import RegistrationForm, LoginForm, ChangePasswordForm, EditMainProfileForm, EditExtraProfileForm
-from .models import User
+from .models import User, Profile, ProfilePhoto
 
 def index_page(request):
     reg_form = RegistrationForm()
@@ -72,7 +72,7 @@ def settings_page(request):
                 return redirect('setting_page')
             else:
                 password_form.add_error('current_password', 'Неверный пароль')
-    return render(request, 'settings.html', { 'user': user, 'password_form': password_form })
+    return render(request, 'settings.html', { 'user': user, 'profile': profile, 'password_form': password_form })
 
 def edit_main_profile(request):
     user = User.objects.get(id=request.session['user_id'])
@@ -86,29 +86,34 @@ def edit_main_profile(request):
     else:
         form = EditMainProfileForm(instance=prof, user=user)
 
-    return render(request, 'edit_profile_main.html', {'form': form})
+    return render(request, 'edit_profile_main.html', {'user': user ,'form': form})
+
 
 def edit_extra_profile(request):
-    user_id = request.session.get('user_id')
-    if not user_id:
+    if not request.user.is_authenticated:
         return redirect('index')
 
     try:
-        user = User.objects.get(id=user_id)
-        profile = Profile.objects.get(user=user)
-    except (User.DoesNotExist, Profile.DoesNotExist):
+        profile = request.user.profile
+    except Profile.DoesNotExist:
         return redirect('index')
 
     if request.method == "POST":
-        form = EditExtraProfileForm(request.POST, request.FILES, instance=profile, user=user)
+        form = EditExtraProfileForm(
+            request.POST,
+            request.FILES,
+            instance=profile
+        )
         if form.is_valid():
-            form.save(user)
+            form.save()
             return redirect('profile')
     else:
-        form = EditExtraProfileForm(instance=profile, user=user)
+        form = EditExtraProfileForm(instance=profile)
 
-    return render(request, 'edit_profile_extra.html', {'form': form})
-
+    return render(request, 'edit_profile_extra.html', {
+        'form': form,
+        'profile': profile
+    })
 
 
 def friends(request):
