@@ -1,5 +1,5 @@
 from django import forms
-from .models import User, Profile, Interest, City, Language, Children, Smoking, Alcohol, Religion, Zodiac, Education, Gender, ProfilePhoto
+from .models import User, Profile, Interest, City, Language, Children, Smoking, Alcohol, Religion, Zodiac, Education, Gender, ProfilePhoto, get_zodiac_sign
 from django.core.exceptions import ValidationError
 from django.core.validators import FileExtensionValidator
 
@@ -143,6 +143,12 @@ class EditExtraProfileForm(forms.ModelForm):
         validators=[FileExtensionValidator(allowed_extensions=['jpg', 'jpeg', 'png', 'webp'])]
     )
 
+    zodiac_sign = forms.ChoiceField(
+        choices=[],
+        required=False,
+        widget=forms.Select()
+    )
+
     class Meta:
         model = Profile
         fields = [
@@ -154,7 +160,6 @@ class EditExtraProfileForm(forms.ModelForm):
         widgets = {
             'height': forms.NumberInput(attrs={'min': 100, 'max': 250}),
             'job': forms.TextInput(),
-            'zodiac_sign': forms.Select(),
             'smoking': forms.Select(),
             'alcohol': forms.Select(),
             'religion': forms.Select(),
@@ -164,9 +169,22 @@ class EditExtraProfileForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        for field in ['zodiac_sign', 'smoking', 'alcohol',
-                     'religion', 'education', 'children']:
+
+        for field in ['smoking', 'alcohol', 'religion', 'education', 'children']:
             self.fields[field].empty_label = "Не указано"
+
+        new_choices = [("", "Не указано")]
+        computed = None
+        if self.instance and self.instance.birth_date:
+            computed = get_zodiac_sign(self.instance.birth_date)
+        if computed:
+            new_choices.append(("auto", f"Показывать мой знак ({computed})"))
+        self.fields["zodiac_sign"].choices = new_choices
+
+        if self.instance and self.instance.zodiac_sign:
+            self.initial["zodiac_sign"] = "auto"
+        else:
+            self.initial["zodiac_sign"] = ""
 
     def clean_job(self):
         job = self.cleaned_data.get('job')
@@ -184,6 +202,26 @@ class EditExtraProfileForm(forms.ModelForm):
                     f"Файл {photo.name} слишком большой (максимум 5 МБ)"
                 )
         return photos
+
+    def clean_zodiac_sign(self):
+        value = self.cleaned_data.get("zodiac_sign")
+        if value == "auto":
+            if self.instance and self.instance.birth_date:
+                zodiac_name = get_zodiac_sign(self.instance.birth_date)
+                if zodiac_name:
+                    try:
+                        zodiac_obj = Zodiac.objects.get(name=zodiac_name)
+                        return zodiac_obj
+                    except Zodiac.DoesNotExist:
+                        raise forms.ValidationError(f"Знак зодиака '{zodiac_name}' не найден в базе")
+                else:
+                    raise forms.ValidationError("Невозможно вычислить знак зодиака")
+            else:
+                raise forms.ValidationError("Дата рождения не указана")
+        elif value == "":
+            return None
+        else:
+            return value
 
     def save(self, commit=True):
         instance = super().save(commit=commit)
