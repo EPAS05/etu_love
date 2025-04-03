@@ -1,0 +1,198 @@
+﻿{% extends 'base.html' %}
+{% load static %}
+{% block title %}Настройки{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/settings_style.css' %}">
+{% endblock %}
+{% block content %}
+<div class="settings-wrapper">
+    <div class="settings-sidebar">
+        <button class="settings-tab active" data-tab="account">Аккаунт</button>
+        <button class="settings-tab" data-tab="main-info">Основная информация</button>
+        <button class="settings-tab" data-tab="additional-info">Дополнительная информация</button>
+    </div>
+
+    <div class="settings-content">
+        <!-- Аккаунт -->
+        <div class="settings-block active" id="account">
+            <form class="settings-form">
+                <h1>Настройки аккаунта</h1>
+                <div class="form-group">
+                    <label for="email">Электронная почта:</label>
+                    <input type="email" id="email" name="email" placeholder="example@mail.com">
+                </div>
+                <button type="button" id="changePasswordBtn" class="save-btn">Изменить пароль</button>
+                <div class="form-group">
+                    <button type="button" class="save-btn danger">Удалить аккаунт</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Основная информация -->
+        <div class="settings-block" id="main-info">
+            <form class="settings-form">
+                <h1>Основная информация</h1>
+                <div class="form-group">
+                    <label for="full-name">Полное имя:</label>
+                    <input type="text" id="full-name" name="full-name" placeholder="Иванов Иван Иванович">
+                </div>
+                <div class="form-group">
+                    <label for="gender">Пол:</label>
+                    <select id="gender" name="gender">
+                        <option value="">Не указано</option>
+                        <option value="male">Мужской</option>
+                        <option value="female">Женский</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="birthday">Дата рождения:</label>
+                    <input type="date" id="birthday" name="birthday">
+                </div>
+                <div class="form-group">
+                    <label for="city">Город:</label>
+                    <input type="text" id="city" name="city" placeholder="Москва">
+                </div>
+                <div class="form-group">
+                    <label for="bio">О себе:</label>
+                    <textarea id="bio" name="bio" rows="4" placeholder="Расскажите о себе"></textarea>
+                </div>
+                <button type="submit" class="save-btn">Сохранить информацию</button>
+            </form>
+        </div>
+
+        <!-- Дополнительная информация -->
+        <div class="settings-block" id="additional-info">
+            <form class="settings-form">
+                <h1>Дополнительная информация</h1>
+                <div class="form-group">
+                    <label for="relationship-goal">Ищу:</label>
+                    <select id="relationship-goal" name="relationship-goal">
+                        <option value="friends">Друзей</option>
+                        <option value="partner">Партнера</option>
+                        <option value="marriage">Брак</option>
+                        <option value="networking">Знакомства</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="occupation">Работа:</label>
+                    <input type="text" id="occupation" name="occupation" placeholder="Должность и компания">
+                </div>
+                <div class="form-group">
+                    <label for="education">Образование:</label>
+                    <input type="text" id="education" name="education" placeholder="Учебное заведение">
+                </div>
+                <div class="form-group">
+                    <label for="children">Дети:</label>
+                    <select id="children" name="children">
+                        <option value="none">Нет</option>
+                        <option value="have">Есть</option>
+                        <option value="planning">Планирую</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="languages">Языки:</label>
+                    <input type="text" id="languages" name="languages" placeholder="Русский, Английский">
+                </div>
+                <div class="form-group">
+                    <label for="religion">Мировоззрение:</label>
+                    <input type="text" id="religion" name="religion" placeholder="Религия или философия">
+                </div>
+                <div class="form-group">
+                    <label for="alcohol">Алкоголь:</label>
+                    <select id="alcohol" name="alcohol">
+                        <option value="never">Не употребляю</option>
+                        <option value="sometimes">Иногда</option>
+                        <option value="regularly">Регулярно</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="smoking">Курение:</label>
+                    <select id="smoking" name="smoking">
+                        <option value="no">Нет</option>
+                        <option value="sometimes">Иногда</option>
+                        <option value="yes">Да</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="hobbies">Увлечения:</label>
+                    <textarea id="hobbies" name="hobbies" rows="3" placeholder="Ваши хобби и интересы"></textarea>
+                </div>
+                <button type="submit" class="save-btn">Сохранить</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно смены пароля -->
+<div id="passwordModal" class="modal">
+    <div class="modal-content">
+        <span class="close"></span>
+        <h2>Изменить пароль</h2>
+        <form method="post" id="passwordForm">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="id_current_password">Текущий пароль:</label>
+                {{ password_form.current_password }}
+                {{ password_form.current_password.errors }}
+            </div>
+            <div class="form-group">
+                <label for="id_new_password">Новый пароль:</label>
+                {{ password_form.new_password }}
+                {{ password_form.new_password.errors }}
+            </div>
+            <div class="form-group">
+                <label for="id_confirm_password">Подтвердите пароль:</label>
+                {{ password_form.confirm_password }}
+                {{ password_form.confirm_password.errors }}
+            </div>
+            <button type="submit" name="change_password" class="save-btn full-width" style="max-width: 400px; margin: 20px auto 0;">Сохранить изменения</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Управление вкладками
+    document.querySelectorAll('.settings-tab').forEach(tab => {
+        tab.addEventListener('click', function () {
+            document.querySelectorAll('.settings-tab, .settings-block').forEach(el => {
+                el.style.transition = 'none';
+                el.classList.remove('active');
+            });
+
+            setTimeout(() => {
+                this.classList.add('active');
+                const content = document.getElementById(this.dataset.tab);
+                content.style.transition = '';
+                content.classList.add('active');
+            }, 50);
+        });
+    });
+
+    // Управление модальным окном
+    const modal = document.getElementById('passwordModal');
+    const btn = document.getElementById('changePasswordBtn');
+    const span = document.querySelector('.close');
+
+    btn.onclick = () => modal.style.display = "flex";
+    span.onclick = () => modal.style.display = "none";
+    window.onclick = (e) => {
+        if (e.target == modal) modal.style.display = "none";
+    };
+
+    // Проверка паролей
+    document.getElementById('passwordForm').addEventListener('submit', function (e) {
+        const newPass = document.getElementById('id_new_password').value;
+        const confirmPass = document.getElementById('id_confirm_password').value;
+
+        if (newPass !== confirmPass) {
+            e.preventDefault();
+            alert('Пароли не совпадают!');
+        }
+    });
+
+    // Подтверждение удаления аккаунта
+    document.querySelector('.danger').addEventListener('click', () => {
+        if (!confirm('Вы уверены, что хотите удалить аккаунт? Это нельзя отменить!')) return;
+    });
+</script>
+{% endblock %}
