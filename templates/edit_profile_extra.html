@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<div class="settings-block" id="extra-info">
+    <form class="settings-form" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <h1>Дополнительная информация</h1>
+
+        <div class="form-group">
+            <label for="{{ form.job.id_for_label }}">Профессия:</label>
+            {{ form.job }}
+        </div>
+
+        <div class="form-group">
+            <label for="{{ form.height.id_for_label }}">Рост (см):</label>
+            {{ form.height }}
+        </div>
+
+        <div class="form-group">
+            <label for="{{ form.zodiac_sign.id_for_label }}">Знак зодиака:</label>
+            {{ form.zodiac_sign }}
+            {{ form.zodiac_sign.errors }}
+        </div>
+
+        <div class="form-group">
+            <label for="{{ form.smoking.id_for_label }}">Курение:</label>
+            {{ form.smoking }}
+        </div>
+
+        <div class="form-group">
+            <label for="{{ form.alcohol.id_for_label }}">Алкоголь:</label>
+            {{ form.alcohol }}
+        </div>
+
+        <div class="form-group">
+            <label for="{{ form.religion.id_for_label }}">Религия:</label>
+            {{ form.religion }}
+        </div>
+
+        <div class="form-group">
+            <label for="{{ form.education.id_for_label }}">Образование:</label>
+            {{ form.education }}
+        </div>
+
+        <div class="form-group">
+            <label for="{{ form.children.id_for_label }}">Дети:</label>
+            {{ form.children }}
+        </div>
+
+        {% for interest in form.interests.field.queryset %}
+    <label>
+        <input type="checkbox" name="interests" value="{{ interest.id }}"
+            {% if interest in form.instance.interests.all %}checked{% endif %}>
+        <img src="{{ interest.image.url }}" alt="{{ interest.name }}" width="30" height="30">
+        {{ interest.name }}
+    </label><br>
+        {% endfor %}
+
+        <div class="form-group">
+            <label>Языки:</label>
+            {{ form.language }}
+        </div>
+
+         <div class="form-group">
+            <label>{{ form.photos.label }}</label>
+            {{ form.photos }}
+            <small class="form-text text-muted">{{ form.photos.help_text }}</small>
+        </div>
+
+
+        <button type="submit" class="save-btn">Сохранить информацию</button>
+    </form>
+</div>
+
+
+</body>
+</html>
