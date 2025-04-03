@@ -12,9 +12,12 @@
 <body>
     <div class="user-home">
         <nav class="sidebar">
-            <div class="star-container">
-                <div class="sidebar-star"></div>
-            </div>
+            <a href="{% url 'profile' %}" class="sidebar-item">
+                <div class="star-container">
+                    <div class="sidebar-star"></div>
+                </div>
+                <span>Поиск</span>
+            </a>
             <div class="sidebar-content">
                 <a href="{% url 'profile' %}" class="sidebar-item">
                     <div class="icon">

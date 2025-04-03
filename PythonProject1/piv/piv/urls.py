@@ -14,7 +14,8 @@ urlpatterns = [
     path('messages/', messages, name='messages'),
     path('settings/', settings_page, name='settings'),
     path('profile/edit', edit_extra_profile, name='editExtra'),
-    path('settings/profile', edit_main_profile, name='editMain')
+    path('settings/profile', edit_main_profile, name='editMain'),
+    #path('search/', poisk, name='poisk')
 ]
 
 if settings.DEBUG:

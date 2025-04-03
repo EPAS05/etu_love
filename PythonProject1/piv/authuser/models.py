@@ -3,6 +3,7 @@ from django.contrib.auth.hashers import make_password, check_password
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 import os
+from datetime import date
 
 class User(models.Model):
     full_name = models.CharField(max_length=100)
@@ -50,6 +51,42 @@ class Profile(models.Model):
     language = models.ManyToManyField('Language', blank=True, null=True)
     emodji_id = models.PositiveIntegerField(default=1)
 
+    @property
+    def age(self):
+        if not self.birth_date:
+            return None
+        today = date.today()
+        born = self.birth_date
+        return today.year - born.year - ((today.month, today.day) < (born.month, born.day))
+
+def get_zodiac_sign(birth_date):
+    if (birth_date.month == 12 and birth_date.day >= 22) or (birth_date.month == 1 and birth_date.day <= 19):
+        return "Козерог"
+    elif (birth_date.month == 1 and birth_date.day >= 20) or (birth_date.month == 2 and birth_date.day <= 18):
+        return "Водолей"
+    elif (birth_date.month == 2 and birth_date.day >= 19) or (birth_date.month == 3 and birth_date.day <= 20):
+        return "Рыбы"
+    elif (birth_date.month == 3 and birth_date.day >= 21) or (birth_date.month == 4 and birth_date.day <= 19):
+        return "Овен"
+    elif (birth_date.month == 4 and birth_date.day >= 20) or (birth_date.month == 5 and birth_date.day <= 20):
+        return "Телец"
+    elif (birth_date.month == 5 and birth_date.day >= 21) or (birth_date.month == 6 and birth_date.day <= 20):
+        return "Близнецы"
+    elif (birth_date.month == 6 and birth_date.day >= 21) or (birth_date.month == 7 and birth_date.day <= 22):
+        return "Рак"
+    elif (birth_date.month == 7 and birth_date.day >= 23) or (birth_date.month == 8 and birth_date.day <= 22):
+        return "Лев"
+    elif (birth_date.month == 8 and birth_date.day >= 23) or (birth_date.month == 9 and birth_date.day <= 22):
+        return "Дева"
+    elif (birth_date.month == 9 and birth_date.day >= 23) or (birth_date.month == 10 and birth_date.day <= 22):
+        return "Весы"
+    elif (birth_date.month == 10 and birth_date.day >= 23) or (birth_date.month == 11 and birth_date.day <= 21):
+        return "Скорпион"
+    elif (birth_date.month == 11 and birth_date.day >= 22) or (birth_date.month == 12 and birth_date.day <= 21):
+        return "Стрелец"
+    else:
+        return None
+
 def profile_photo_upload_to(instance, filename):
     return os.path.join("profile_photos", str(instance.profile.user.id), filename)
 
@@ -63,6 +100,10 @@ class ProfilePhoto(models.Model):
 
 class Interest(models.Model):
     name = models.CharField(max_length=20, unique=True)
+    image = models.ImageField(upload_to='interests/', blank=True, null=True)
+
+    def __str__(self):
+        return self.name
 
 class City(models.Model):
     name = models.CharField(max_length=20, unique=True)

@@ -1,4 +1,4 @@
-/* ==================== 1. Сброс стилей и базовые настройки ==================== */
+/* ==================== 1. пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ ==================== */
 * {
     box-sizing: border-box;
     margin: 0;
@@ -11,21 +11,21 @@ body {
     transition: background 0.3s;
 }
 
-/* ==================== 2. Основные контейнеры и макеты ==================== */
-/* Основное окно */
+/* ==================== 2. пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ ==================== */
+/* пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ */
 .main-window {
     flex: 1;
     padding: 10px;
 }
 
-/* Блок статистики и заголовка профиля */
+/* пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ */
 .user-header {
     display: flex;
     align-items: center;
     margin-bottom: 20px;
 }
 
-/* Статистика */
+/* пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ */
 .stats {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -40,7 +40,7 @@ body {
     min-height: 100px;
 }
 
-/* Прочие блоки с размерами */
+/* пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ */
 .rectangle-box {
     min-height: 800px;
 }
@@ -57,8 +57,8 @@ body {
     grid-row: span 2;
 }
 
-/* ==================== 3. Стили профиля ==================== */
-/* Заголовок профиля и информация */
+/* ==================== 3. пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ ==================== */
+/* пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ */
 .profile-header {
     display: flex;
     gap: 20px;
@@ -70,7 +70,7 @@ body {
     flex: 1;
 }
 
-/* Фото пользователя */
+/* пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ */
 .user-photo {
     width: 180px;
     height: 180px;
@@ -85,7 +85,7 @@ body {
     cursor: pointer;
 }
 
-/* Вертикальное расположение элементов профиля */
+/* пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ */
 .profile-info.vertical-layout {
     display: flex;
     flex-direction: column;
@@ -99,8 +99,8 @@ body {
         padding: 0;
     }
 
-/* ==================== 4. Стили блока информации (статистика) ==================== */
-/* Заголовок и псевдоэлемент */
+/* ==================== 4. пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ) ==================== */
+/* пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ */
 .stat-box h3 {
     color: #5B5F84;
     font-size: 0.95em;
@@ -114,7 +114,7 @@ body {
         display: none;
     }
 
-/* Текстовые элементы в блоке */
+/* пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅ */
 .stat-box span {
     display: block;
     background: #f8f8f8;
@@ -125,7 +125,7 @@ body {
     border: 1px solid #eee;
 }
 
-/* ==================== 5. Прогресс-бар ==================== */
+/* ==================== 5. пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ-пїЅпїЅпїЅ ==================== */
 .progress-bar {
     height: 8px;
     background: #eee;
@@ -141,8 +141,8 @@ body {
     transition: 0.3s;
 }
 
-/* ==================== 6. Модальные окна и элементы управления ==================== */
-/* Общие стили для модальных окон */
+/* ==================== 6. пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ ==================== */
+/* пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ */
 .avatar-modal,
 .info-modal {
     display: none;
@@ -157,7 +157,7 @@ body {
     z-index: 1000;
 }
 
-/* Блок выбора аватара */
+/* пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ */
 .avatar-picker {
     background: white;
     padding: 20px;
@@ -167,7 +167,7 @@ body {
     box-shadow: 0 0 15px rgba(0,0,0,0.2);
 }
 
-/* Сетка аватаров */
+/* пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ */
 .avatar-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -175,7 +175,7 @@ body {
     margin: 15px 0;
 }
 
-/* Кнопки выбора аватара */
+/* пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ */
 .avatar-option {
     font-size: 2em;
     border: none;
@@ -190,7 +190,7 @@ body {
         background: #f0f0f0;
     }
 
-/* Кнопка закрытия модальных окон */
+/* пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ */
 .close-modal {
     position: absolute;
     top: 10px;
@@ -201,7 +201,7 @@ body {
     cursor: pointer;
 }
 
-/* Кнопка информации */
+/* пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ */
 .info-btn {
     background: #5B5F84;
     color: white;
@@ -218,7 +218,7 @@ body {
         transform: translateY(-2px);
     }
 
-/* Контент информационного модального окна */
+/* пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ */
 .info-content {
     background: white;
     padding: 25px;
@@ -245,7 +245,7 @@ body {
         margin-bottom: 5px;
     }
 
-/* ==================== 7. Анимации ==================== */
+/* ==================== 7. пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ ==================== */
 @keyframes fadeIn {
     from {
         opacity: 0;
@@ -262,8 +262,8 @@ body {
     animation: fadeIn 0.5s ease-out;
 }
 
-/* ==================== 8. Дополнительные компоненты ==================== */
-/* Блок "Три квадрата" */
+/* ==================== 8. пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ ==================== */
+/* пїЅпїЅпїЅпїЅ "пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ" */
 .three-squares {
     display: flex;
     gap: 10px;
@@ -294,7 +294,6 @@ body {
             margin: 0;
         }
 
-/* Блок "Дополнительно" */
 .dlc-block {
     display: flex;
     flex-direction: column;
@@ -303,41 +302,81 @@ body {
     background: white;
     border-radius: 10px;
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    width: 100%;
+    max-width: 600px; /* РќР°СЃС‚СЂРѕР№С‚Рµ РїРѕРґ РІР°С€ РґРёР·Р°Р№РЅ */
 }
 
-/* Фотографии */
-.photos-section h2 {
-    font-size: 1.2em;
-    margin-bottom: 10px;
-}
-
-.photos-grid {
+/* РЎРµС‚РєР° РґР»СЏ С„РѕС‚РѕРіСЂР°С„РёР№ */
+.photos-container {
     display: grid;
-    grid-template-columns: 2fr 1fr;
-    grid-template-rows: 1fr 1fr;
+    grid-template-columns: 300px 150px; /* 1 Р±РѕР»СЊС€Р°СЏ + 2 РјР°Р»РµРЅСЊРєРёРµ РІ РєРѕР»РѕРЅРєСѓ */
+    grid-auto-rows: 150px;
     gap: 10px;
 }
 
+/* Р‘РѕР»СЊС€РѕРµ С„РѕС‚Рѕ */
 .large-photo {
     grid-row: span 2;
+    height: 310px; /* 150px * 2 + 10px (gap) */
     background: #f8f8f8;
     border: 1px solid #ddd;
     border-radius: 8px;
-    width: 300px;
-    height:300px;
-    aspect-ratio: 1 / 1;
+    position: relative;
+    overflow: hidden;
 }
 
+/* РњР°Р»РµРЅСЊРєРѕРµ С„РѕС‚Рѕ */
 .small-photo {
     background: #f8f8f8;
     border: 1px solid #ddd;
     border-radius: 8px;
-    width: 150px;
-    height: 150px;
-    aspect-ratio: 1 / 1;
+    position: relative;
+    overflow: hidden;
 }
 
-/* Ищу жену/мужа/друзей */
+/* РџСѓСЃС‚РѕР№ РїР»РµР№СЃС…РѕР»РґРµСЂ */
+.empty-photo-placeholder {
+    width: 100%;
+    height: 100%;
+    background: #f8f8f8;
+    border: 2px dashed #ddd;
+    border-radius: 8px;
+}
+
+/* РР·РѕР±СЂР°Р¶РµРЅРёСЏ РІРЅСѓС‚СЂРё Р±Р»РѕРєРѕРІ */
+.photo-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* РЎС‚РёР»Рё РґР»СЏ РѕРІРµСЂР»РµСЏ */
+.blur-container {
+    filter: blur(4px);
+    width: 100%;
+    height: 100%;
+}
+
+.overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 24px;
+}
+/* Р”РѕРїРѕР»РЅРёС‚РµР»СЊРЅРѕРµ РѕС„РѕСЂРјР»РµРЅРёРµ РїР»СЋСЃРёРєР° */
+.plus-icon {
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.8);
+}
+
+
+
 .looking-for h2 {
     display: inline-block;
     font-size: 1.2em;
@@ -348,7 +387,7 @@ body {
     text-align: left;
 }
 
-/* Увлечения */
+/* пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ */
 .hobbies h2 {
     font-size: 1.2em;
     margin-bottom: 10px;
@@ -367,13 +406,18 @@ body {
     font-size: 0.95em;
 }
 
-/* ==================== 9. Поддержка тёмной темы ==================== */
+.hobby-img {
+    width: 15px;
+    height: 15px;
+}
+
+/* ==================== 9. пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ ==================== */
 body[data-theme="dark"] {
     background: #1a1a1a;
     color: white;
 }
 
-    /* Основные блоки в тёмной теме */
+    /* пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ */
     body[data-theme="dark"] .stat-box,
     body[data-theme="dark"] .avatar-picker,
     body[data-theme="dark"] .info-content {
@@ -385,17 +429,17 @@ body[data-theme="dark"] {
             border-color: #3a3a3a;
         }
 
-    /* Эффекты при наведении */
+    /* пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ */
     body[data-theme="dark"] .avatar-option:hover {
         background: #3a3a3a;
     }
 
-    /* Фото пользователя */
+    /* пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ */
     body[data-theme="dark"] .user-photo {
         border-color: #7B7F94;
     }
 
-    /* Элементы блока информации */
+    /* пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ */
     body[data-theme="dark"] .info-item {
         border-color: #3a3a3a;
     }
@@ -404,7 +448,7 @@ body[data-theme="dark"] {
             color: #7B7F94;
         }
 
-    /* Блок "Три квадрата" */
+    /* пїЅпїЅпїЅпїЅ "пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ" */
     body[data-theme="dark"] .three-squares .square {
         background: #2a2a2a;
         box-shadow: 0 2px 5px rgba(0,0,0,0.4);
@@ -415,7 +459,7 @@ body[data-theme="dark"] {
             color: white;
         }
 
-    /* Блок "Подписчики" */
+    /* пїЅпїЅпїЅпїЅ "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ" */
     body[data-theme="dark"] .dlc-block {
         background: #2a2a2a;
         box-shadow: 0 2px 5px rgba(0,0,0,0.4);
@@ -425,21 +469,21 @@ body[data-theme="dark"] {
             color: white;
         }
 
-    /* Фотографии */
+    /* пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ */
     body[data-theme="dark"] .photos-grid .large-photo,
     body[data-theme="dark"] .photos-grid .small-photo {
         background: #3a3a3a;
         border-color: #555;
     }
 
-    /* Ищу жену/мужа/друзей */
+    /* пїЅпїЅпїЅ пїЅпїЅпїЅпїЅ/пїЅпїЅпїЅпїЅ/пїЅпїЅпїЅпїЅпїЅпїЅ */
     body[data-theme="dark"] .looking-for h2 {
         background: #3a3a3a;
         color: white;
         text-align: left;
     }
 
-    /* Увлечения */
+    /* пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ */
     body[data-theme="dark"] .hobby-item {
         background: #444;
         color: white;

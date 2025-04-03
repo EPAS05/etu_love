@@ -23,6 +23,7 @@
         <div class="form-group">
             <label for="{{ form.zodiac_sign.id_for_label }}">Знак зодиака:</label>
             {{ form.zodiac_sign }}
+            {{ form.zodiac_sign.errors }}
         </div>
 
         <div class="form-group">
@@ -50,10 +51,14 @@
             {{ form.children }}
         </div>
 
-        <div class="form-group">
-            <label>Интересы:</label>
-            {{ form.interests }}
-        </div>
+        {% for interest in form.interests.field.queryset %}
+    <label>
+        <input type="checkbox" name="interests" value="{{ interest.id }}"
+            {% if interest in form.instance.interests.all %}checked{% endif %}>
+        <img src="{{ interest.image.url }}" alt="{{ interest.name }}" width="30" height="30">
+        {{ interest.name }}
+    </label><br>
+        {% endfor %}
 
         <div class="form-group">
             <label>Языки:</label>

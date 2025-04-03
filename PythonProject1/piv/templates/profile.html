@@ -21,6 +21,9 @@
 
             <h2 class="profile-info vertical-layout">
                 {{ request.user.full_name }}
+                {% if user.profile.age %}
+                    <span class="age">{{ user.profile.age }}</span>
+                {% endif %}
             </h2>
             <button class="info-btn" onclick="openUserInfoModal()">Информация</button>
         </div>
@@ -74,44 +77,64 @@
 
     {# ============================== Дополнительная информация ============================== #}
     <div class="stat-box animate rectangle-box skip-box dlc-block">
-        {# Фотографии пользователя #}
-        <div class="photos-section">
+    <!-- Секция с фотографиями -->
+    <!-- Исправленный шаблон (HTML + Django) -->
+    <div class="photos-section">
     <h2>Фотографии ({{ profile.photos.count }})</h2>
-    <div class="photos-grid">
-        {% for photo in profile.photos.all|dictsortreversed:"uploaded_at"|slice:":3" %}
-            <div class="{% if forloop.first %}large-photo{% else %}small-photo{% endif %}">
-                <img src="{{ photo.image.url }}"
-                     alt="Фото пользователя {{ photo.profile.user.full_name }}"
-                     class="photo-image">
+    <div class="photos-container">
+        {% for photo in profile.photos.all|slice:":3" %}
+            <div class="{% if forloop.first %}large-photo{% else %}small-photo{% endif %} photo-wrapper">
+                <!-- Добавляем оверлей для третьего фото, если фото больше 3 -->
+                {% if forloop.last and profile.photos.count > 3 %}
+                    <div class="blur-container">
+                        <img src="{{ photo.image.url }}"
+                             alt="Фото пользователя {{ profile.user.full_name }}"
+                             class="photo-image">
+                    </div>
+                    <div class="overlay">
+                        <span class="plus-icon">+{{ profile.photos.count|add:"-2" }}</span>
+                    </div>
+                {% else %}
+                    <img src="{{ photo.image.url }}"
+                         alt="Фото пользователя {{ profile.user.full_name }}"
+                         class="photo-image">
+                {% endif %}
+            </div>
+        {% empty %}
+            <!-- Пустые плейсхолдеры -->
+            <div class="large-photo photo-wrapper">
+                <div class="empty-photo-placeholder"></div>
+            </div>
+            <div class="small-photo photo-wrapper">
+                <div class="empty-photo-placeholder"></div>
+            </div>
+            <div class="small-photo photo-wrapper">
+                <div class="empty-photo-placeholder"></div>
             </div>
         {% endfor %}
-
-        {# Блок с количеством дополнительных фото #}
-        {% with remaining=profile.photos.count|add:"-3" %}
-            {% if remaining > 0 %}
-                <div class="small-photo more-photos">
-                    <span class="plus-icon">+{{ remaining }}</span>
-                </div>
-            {% endif %}
-        {% endwith %}
     </div>
 </div>
 
-        {# Раздел "Ищу" для друзей, партнёров и пр. #}
-        <div class="looking-for">
-            <h2>Ищу: жену/мужа/друзей</h2>
-        </div>
+    <!-- Секция "Ищу" -->
+    <div class="looking-for">
+        <h2>Ищу: {{ profile.get_relationship_goals_display }}</h2>
+    </div>
 
-        {# Увлечения пользователя #}
-        <div class="hobbies">
-            <h2>Увлечения:</h2>
-            <div class="hobbies-list">
-                <span class="hobby-item">Книги</span>
-                <span class="hobby-item">Игры</span>
-                {# Добавляйте новые элементы по мере необходимости #}
-            </div>
+    <!-- Секция увлечений -->
+    <div class="hobbies">
+        <h2>Увлечения:</h2>
+        <div class="hobbies-list">
+            {% for interest in profile.interests.all %}
+                <div class="hobby-item">
+                    <img src="{{ interest.image.url }}" alt="{{ interest.name }}" class="hobby-img">
+                    <span>{{ interest.name }}</span>
+                </div>
+            {% empty %}
+                <span>Нет добавленных увлечений</span>
+            {% endfor %}
         </div>
     </div>
+    </div></div>
 
     {# ============================== Статистические блоки ============================== #}
     <div class="stat-box animate min-box">
@@ -130,7 +153,6 @@
             </div>
         </div>
     </div>
-</div>
 
 {# ============================== Модальные окна ============================== #}
 {# Модальное окно для подробной информации #}
