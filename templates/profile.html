@@ -1,0 +1,217 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}
+    Профиль
+{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/profile_style.css' %}">
+{% endblock %}
+{% block content %}
+
+<h1>Мой профиль</h1>
+
+<div class="stats">
+    {# ============================== Профиль пользователя ============================== #}
+    <div class="stat-box animate square-box">
+        <div class="profile-header">
+            <div class="avatar-container">
+                <img class="avatar-image" src="{{ user.profile.avatar.url }}" alt="Avatar" onclick="openPhotoPreview(this.src)">
+            </div>
+            <h2 class="profile-info vertical-layout">
+                {{ request.user.full_name }}
+                {% if user.profile.age %}
+                <span class="age">{{ user.profile.age }}</span>
+                {% endif %}
+            </h2>
+        </div>
+        <h2>О себе</h2>
+        <br>
+        <span style="overflow-wrap: break-all">
+            {{ user.profile.bio }}
+        </span>
+    </div>
+
+    {# ============================== Информация о пользователе ============================== #}
+    <div class="stat-box animate rectangle-box skip-box">
+        <h2>Информация о пользователе</h2>
+        <div>
+            <h3>| Город</h3>
+            <span>{{ user.profile.city }}</span>
+        </div>
+        <div>
+            <h3>| Должность</h3>
+            <span>{{ user.profile.job }}</span>
+        </div>
+        <div>
+            <h3>| Образование</h3>
+            <span>{{ user.profile.education }}</span>
+        </div>
+        <div>
+            <h3>| Рост</h3>
+            <span>{{ user.profile.height }}</span>
+        </div>
+        <div>
+            <h3>| Знак зодиака</h3>
+            <span>{{ user.profile.zodiac_sign }}</span>
+        </div>
+        <div>
+            <h3>| Религия</h3>
+            <span>{{ user.profile.religion }}</span>
+        </div>
+        <div>
+            <h3>| Отношение к алкоголю</h3>
+            <span>{{ user.profile.alcohol }}</span>
+        </div>
+        <div>
+            <h3>| Отношение к курению</h3>
+            <span>{{ user.profile.smoking }}</span>
+        </div>
+        <div>
+            <h3>| Отношение к детям</h3>
+            <span>{{ user.profile.children }}</span>
+        </div>
+    </div>
+
+    {# ============================== Дополнительная информация ============================== #}
+    <div class="stat-box animate rectangle-box skip-box dlc-block">
+        <!-- Секция с фотографиями -->
+        <div class="photos-section">
+            <h2>Фотографии ({{ profile.photos.count }})</h2>
+            <div class="photos-container">
+                {% for photo in profile.photos.all|dictsortreversed:"uploaded_at"|slice:":3" %}
+                <div class="{% if forloop.first %}large-photo{% else %}small-photo{% endif %} photo-wrapper">
+                    {# Добавляем оверлей для третьего фото, если фото больше 3 #}
+                    {% if forloop.last and profile.photos.count > 3 %}
+                    <div class="blur-container">
+                        <img src="{{ photo.image.url }}"
+                             alt="Фото пользователя {{ profile.user.full_name }}"
+                             class="photo-image"
+                             onclick="openPhotoPreview(this.src)">
+                    </div>
+                    <div class="overlay" onclick="openPhotoModal()">
+                        <span class="plus-icon">+{{ profile.photos.count|add:"-2" }}</span>
+                    </div>
+                    {% else %}
+                    <img src="{{ photo.image.url }}"
+                         alt="Фото пользователя {{ profile.user.full_name }}"
+                         class="photo-image"
+                         onclick="openPhotoPreview(this.src)">
+                    <a href="{% url 'delete_photo' photo.uuid %}">
+                    <span class="dlc-block">удалить</span>
+                </a>
+                    {% endif %}
+                </div>
+                {% empty %}
+                <!-- Пустые плейсхолдеры -->
+                <div class="large-photo photo-wrapper">
+                    <div class="empty-photo-placeholder"></div>
+                </div>
+                <div class="small-photo photo-wrapper">
+                    <div class="empty-photo-placeholder"></div>
+                </div>
+                <div class="small-photo photo-wrapper">
+                    <div class="empty-photo-placeholder"></div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Секция "Ищу" -->
+        <div class="looking-for">
+            <h2>Ищу: {{ user.profile.relationship }}</h2>
+        </div>
+
+        <!-- Секция увлечений -->
+        <div class="hobbies">
+            <h2>Увлечения:</h2>
+            <div class="hobbies-grid">
+                {% for interest in profile.interests.all %}
+                <div class="hobby-tile">
+                    <img src="{{ interest.image.url }}" alt="{{ interest.name }}" class="hobby-img">
+                    <span>{{ interest.name }}</span>
+                </div>
+                {% empty %}
+                <span>Нет добавленных увлечений</span>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    {# ============================== Статистические блоки ============================== #}
+    <div class="stat-box animate min-box">
+        <div class="three-squares">
+            <div class="square">
+                <h2>Друзья</h2>
+                <p class="count">0</p>
+            </div>
+            <div class="square">
+                <h2>Подписчики</h2>
+                <p class="count">0</p>
+            </div>
+            <div class="square">
+                <h2>Деньги</h2>
+                <p class="count">0</p>
+            </div>
+            <div class="square">
+                <h2>Размер</h2>
+                <p class="count">0</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно для отображения всех фотографий -->
+<div id="photoModal" class="modal" onclick="closePhotoModal()">
+    <div class="modal-content modal-grid" onclick="event.stopPropagation()">
+        <span class="close" onclick="closePhotoModal()"></span>
+        {% for photo in profile.photos.all|dictsortreversed:"uploaded_at" %}
+        <img src="{{ photo.image.url }}" alt="Фото пользователя {{ profile.user.full_name }}" onclick="openPhotoPreview(this.src)">
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Модальное окно для полного отображения фотографии -->
+<div id="photoPreviewModal" onclick="closePhotoPreview()">
+    <img src="" alt="Полное фото" onclick="event.stopPropagation()">
+</div>
+
+
+<div class="reviews-list">
+    <h3>Отзывы ({{ avg_rating }} / 5)</h3>
+        {% for review in reviews %}
+        <div class="review-card">
+            <div class="review-header">
+                <img src="{{ review.author.profile.avatar.url }}"
+                     class="avatar-small">
+                <div class="review-author">
+                    <a href="{% url 'user_profile' review.author.id %}">
+                        {{ review.author.full_name }}
+                    </a>
+                    <div class="rating-stars">
+                        {% for _ in "12345" %}
+                            {% if forloop.counter <= review.rating %}
+                                <span class="star filled">★</span>
+                            {% else %}
+                                <span class="star">☆</span>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+                <span class="review-date">
+                    {{ review.created_at|date:"d.m.Y H:i" }}
+                </span>
+            </div>
+            <p class="review-text">{{ review.text }}</p>
+        </div>
+        {% empty %}
+        <p>Пока нет отзывов</p>
+        {% endfor %}
+    </div>
+
+
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/user_script.js' %}"></script>
+{% endblock %}

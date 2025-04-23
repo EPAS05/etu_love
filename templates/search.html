@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+{{ user.full_name }}
+{% for field in user.profile.interests.all %}
+{{ field }}
+{% endfor %}
+
+<div class="search-settings">
+    <!-- Форма выбора критериев -->
+    <div class="criteria-section">
+        <h2>Выберите важные критерии</h2>
+        <form method="post">
+            {% csrf_token %}
+            {{ criteria_form.as_p }}
+            <button type="submit" name="criteria_submit" class="btn btn-primary">
+                Сохранить критерии
+            </button>
+        </form>
+    </div>
+
+    <!-- Форма настроек значений -->
+    {% if values_form %}
+    <div class="values-section">
+        <h2>Уточните параметры поиска</h2>
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-grid">
+                {% for field in values_form %}
+                    {% if field.name != 'interests' %}
+                    <div class="form-field">
+                        {{ field.label_tag }}<br>
+                        {{ field }}
+                        {% if field.errors %}
+                            <div class="error">{{ field.errors }}</div>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+
+            <!-- Блок с интересами -->
+            {% if values_form.interests %}
+            <div class="interest-section">
+                <h3>Выберите интересующие:</h3>
+                <div class="interest-grid">
+                    {% for checkbox in values_form.interests %}
+                    <div class="interest-card">
+                        <label class="interest-label">
+                            {{ checkbox.tag }}
+                            <span class="interest-name">{{ checkbox.choice_label }}</span>
+                        </label>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <button type="submit" name="values_submit" class="btn btn-success">
+                Сохранить настройки
+            </button>
+        </form>
+    </div>
+    {% endif %}
+</div>
+
+<div class="matches-container">
+    <form method="post" class="refresh-form">
+        {% csrf_token %}
+        <button type="submit" name="refresh_matches" class="btn btn-refresh">
+            Обновить список
+        </button>
+    </form>
+  {% for match in matches %}
+  {{ i }}
+  <div class="match-card">
+    <a href="{% url 'user_profile' match.profile.user.id %}" class="profile-link">
+    <img src="{{ match.profile.avatar.url }}" class="avatar">
+    <div class="info">
+      <h3>{{ match.profile.user.full_name }}, {{ match.profile.age }}</h3>
+      <p>{{ match.profile.city.name }}</p>
+      <div class="compatibility">
+        <div class="score-bar" style="width: {{ match.score }}%"></div>
+        <span>{{ match.score }}%</span>
+      </div>
+    </div>
+  </div>
+  {% empty %}
+  <p>Нет подходящих совпадений. Попробуйте изменить критерии поиска.</p>
+  {% endfor %}
+</div>
+
+{% endblock %}

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<form method="post">
+    {% csrf_token %}
+    {{ formset.management_form }}
+
+    {% for data in comparisons_data %}
+    <div class="comparison-item">
+        <h3>{{ data.criterion_a.name }} vs {{ data.criterion_b.name }}</h3>
+        {{ data.form.id }}
+        <div class="radio-group">
+            {% for radio in data.form.score %}
+            <label class="radio-label">
+                {{ radio.tag }}
+                <span class="radio-text">
+                    {% if radio.choice_value == 1 %}
+                        {{ data.criterion_a.name }} значительно важнее
+                    {% elif radio.choice_value == 2 %}
+                        {{ data.criterion_a.name }} немного важнее
+                    {% elif radio.choice_value == 3 %}
+                        Одинаково важны
+                    {% elif radio.choice_value == 4 %}
+                        {{ data.criterion_b.name }} немного важнее
+                    {% elif radio.choice_value == 5 %}
+                        {{ data.criterion_b.name }} значительно важнее
+                    {% endif %}
+                </span>
+            </label>
+            {% endfor %}
+        </div>
+    </div>
+    {% endfor %}
+
+    <button type="submit" class="btn-submit">Сохранить и продолжить</button>
+</form>
+</body>
+</html>

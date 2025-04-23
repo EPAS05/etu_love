@@ -1,0 +1,561 @@
+/* ==================== 1. Сброс стилей и базовые настройки ==================== */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Segoe UI', sans-serif;
+    background: #f0f0f0;
+    transition: background 0.3s;
+}
+
+/* ==================== 2. Основные контейнеры и макеты ==================== */
+.main-window {
+    flex: 1;
+    padding: 40px;
+}
+
+.user-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.stats {
+    display: grid;
+    grid-template-columns: 1fr 0.6fr 1fr;
+    gap: 40px;
+}
+
+.stat-box {
+    background: white;
+    padding: 10px;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    min-height: 100px;
+}
+
+.rectangle-box {
+    min-height: 1040px;
+}
+
+.square-box {
+    min-height: 800px;
+}
+
+.min-box {
+    min-height: 200px;
+}
+
+.skip-box {
+    grid-row: span 2;
+}
+
+/* ==================== 3. Стили профиля ==================== */
+.profile-header {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.profile-info {
+    flex: 1;
+}
+
+.user-photo {
+    width: 180px;
+    height: 180px;
+    border-radius: 10%;
+    flex-shrink: 0;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5em;
+    background: #5B5F84;
+    color: white;
+    cursor: pointer;
+}
+
+.profile-info.vertical-layout {
+    display: flex;
+    flex-direction: column;
+    align-self: flex-start;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+    .profile-info.vertical-layout h2 {
+        margin: 0;
+        padding: 0;
+    }
+
+.avatar-container {
+    text-align: center;
+    margin: 10px 0;
+}
+
+.avatar-image {
+    border-radius: 5%;
+    border: 5px solid #5B5F84;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    object-fit: cover;
+    width: 300px;
+    height: 300px;
+}
+
+/* ==================== 4. Стили блока информации (статистика) ==================== */
+.stat-box h3 {
+    color: #5B5F84;
+    font-size: 0.95em;
+    margin: 15px 0 8px;
+    padding-left: 0;
+    position: relative;
+    transition: 0.3s;
+}
+
+    .stat-box h3::before {
+        display: none;
+    }
+
+.stat-box span {
+    display: block;
+    background: #f8f8f8;
+    padding: 8px 12px;
+    border-radius: 6px;
+    margin-bottom: 10px;
+    font-size: 0.95em;
+    border: 1px solid #eee;
+}
+
+/* ==================== 5. Стили кнопок ==================== */
+.info-btn {
+    background: #5B5F84;
+    color: white;
+    border: none;
+    padding: 8px 20px;
+    border-radius: 10px;
+    cursor: pointer;
+    margin-top: auto;
+    transition: 0.3s;
+}
+
+    .info-btn:hover {
+        background: #6B6F94;
+        transform: translateY(-2px);
+    }
+
+/* ==================== 6. Анимации ==================== */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate {
+    animation: fadeIn 0.5s ease-out;
+}
+
+/* ==================== 7. Дополнительные компоненты ==================== */
+.three-squares {
+    display: flex;
+    gap: 10px;
+    margin: 10px 0;
+    height: calc(100% - 20px);
+}
+
+    .three-squares .square {
+        flex: 1;
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        padding: 20px;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+        .three-squares .square h2 {
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .three-squares .square .count {
+            font-size: 2em;
+            font-weight: bold;
+            margin: 0;
+        }
+
+.dlc-block {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 20px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+/* ==================== 8. Стили для фотографий ==================== */
+.photos-container {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    grid-template-rows: repeat(2, 1fr);
+    gap: 10px;
+    width: 100%;
+    aspect-ratio: 3 / 2;
+    margin-top: 10px;
+}
+
+.photo-wrapper {
+    position: relative;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 4px solid #5B5F84;
+    background: #5B5F84;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.large-photo {
+    grid-column: 1;
+    grid-row: 1 / span 2;
+    width: 100%;
+    height: 100%;
+}
+
+.small-photo:nth-child(2) {
+    grid-column: 2;
+    grid-row: 1;
+    width: 100%;
+    height: 100%;
+}
+
+.small-photo:nth-child(3) {
+    grid-column: 2;
+    grid-row: 2;
+    width: 100%;
+    height: 100%;
+}
+
+.photo-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: inherit;
+}
+
+.blur-container {
+    filter: blur(3px);
+    width: 100%;
+    height: 100%;
+}
+
+/* Оверлей и стили для кнопки +N */
+.overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 2em;
+    font-weight: bold;
+}
+
+    .overlay .plus-icon {
+        color: #ffffff;
+        text-shadow: 0 0 4px rgba(0,0,0,0.5);
+        background-color: rgba(0, 0, 0, 0.4);
+        padding: 5px 10px;
+        border-radius: 5px;
+    }
+
+.modal-trigger {
+    cursor: pointer;
+}
+
+/* ==================== 9. Улучшенные стили для модального окна с фото ==================== */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(5px);
+    overflow-y: auto;
+    animation: fadeInModal 0.3s ease;
+}
+
+@keyframes fadeInModal {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.modal-content.modal-grid {
+    position: relative;
+    max-width: 90%;
+    margin: 60px auto;
+    padding: 30px;
+    background: #fff;
+    border-radius: 15px;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 15px;
+}
+
+/* Отображение изображений в виде квадратов с эффектом масштабирования */
+.modal-grid img {
+    width: 100%;
+    height: 100%;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    border-radius: 8px;
+    transition: transform 0.2s ease;
+}
+
+    .modal-grid img:hover {
+        transform: scale(1.05);
+    }
+
+/* Стилизация кнопки закрытия */
+.modal .close {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    font-size: 2rem;
+    font-weight: bold;
+    color: #333;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+    .modal .close:hover {
+        color: #777;
+    }
+
+/* ==================== 10. Стили для секций "Ищу" и "Увлечения" ==================== */
+.looking-for h2 {
+    display: inline-block;
+    font-size: 1.2em;
+    margin: 0;
+    padding: 10px;
+    background: #e9e9e9;
+    border-radius: 8px;
+    text-align: left;
+}
+
+.hobbies h2 {
+    font-size: 1.2em;
+    margin-bottom: 10px;
+}
+
+.hobbies-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.hobby-item {
+    background: #e0e0e0;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 0.95em;
+}
+
+.hobby-img {
+    width: 100px;
+    height: auto;
+}
+
+.hobbies {
+    margin-top: 20px;
+}
+
+.hobbies-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 0px;
+}
+
+.hobby-tile {
+    background: #e0e0e0;
+    border-radius: 10px;
+    aspect-ratio: 1 / 1;
+    padding: 6px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    border: 1px solid #5B5F84;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    overflow: hidden;
+}
+
+    .hobby-tile:hover {
+        transform: scale(1.05);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    }
+
+.hobby-img {
+    width: 36px;
+    height: 36px;
+    object-fit: cover;
+    border-radius: 5px;
+    border: 2px solid #5B5F84;
+    margin-bottom: 4px;
+}
+
+.hobby-tile span {
+    font-size: 0.65em;
+    color: #333;
+    line-height: 1;
+    word-break: break-word;
+}
+
+/* ==================== 11. Тёмная тема ==================== */
+body[data-theme="dark"] {
+    background: #1a1a1a;
+    color: white;
+}
+
+    body[data-theme="dark"] .stat-box,
+    body[data-theme="dark"] .avatar-picker,
+    body[data-theme="dark"] .info-content {
+        background: #2a2a2a;
+    }
+
+        body[data-theme="dark"] .stat-box span {
+            background: #2a2a2a;
+            border-color: #3a3a3a;
+        }
+
+    body[data-theme="dark"] .avatar-option:hover {
+        background: #3a3a3a;
+    }
+
+    body[data-theme="dark"] .user-photo {
+        border-color: #7B7F94;
+    }
+
+    body[data-theme="dark"] .info-item {
+        border-color: #3a3a3a;
+    }
+
+        body[data-theme="dark"] .info-item span {
+            color: #7B7F94;
+        }
+
+    body[data-theme="dark"] .three-squares .square {
+        background: #2a2a2a;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.4);
+    }
+
+        body[data-theme="dark"] .three-squares .square h2,
+        body[data-theme="dark"] .three-squares .square .count {
+            color: white;
+        }
+
+    body[data-theme="dark"] .dlc-block {
+        background: #2a2a2a;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.4);
+    }
+
+        body[data-theme="dark"] .dlc-block h2 {
+            color: white;
+        }
+
+    body[data-theme="dark"] .photos-container .large-photo,
+    body[data-theme="dark"] .photos-container .small-photo {
+        background: #3a3a3a;
+        border-color: #5B5F84;
+    }
+
+    body[data-theme="dark"] .looking-for h2 {
+        background: #3a3a3a;
+        color: white;
+        text-align: left;
+    }
+
+    body[data-theme="dark"] .hobby-item {
+        background: #444;
+        color: white;
+    }
+
+    body[data-theme="dark"] .hobby-tile {
+        background: #2f2f2f;
+        border-color: #5B5F84;
+    }
+
+    body[data-theme="dark"] .hobby-img {
+        border-color: #7B7F94;
+    }
+
+    body[data-theme="dark"] .hobby-tile span {
+        color: #eaeaea;
+    }
+
+    /* Дополнительные изменения для тёмной темы модального окна */
+    body[data-theme="dark"] .modal {
+        background-color: rgba(0,0,0,0.9);
+    }
+
+    body[data-theme="dark"] .modal-content.modal-grid {
+        background: #2a2a2a;
+    }
+
+    body[data-theme="dark"] .modal .close {
+        color: #fff;
+    }
+
+    body[data-theme="dark"] .overlay .plus-icon {
+        color: #eaeaea;
+    }
+
+/* ==================== 12. Стили для полного отображения фото (Preview) ==================== */
+#photoPreviewModal {
+    display: none;
+    position: fixed;
+    z-index: 1100;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.9);
+    backdrop-filter: blur(3px);
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+    #photoPreviewModal img {
+        max-width: 90%;
+        max-height: 90%;
+        border: 5px solid #fff;
+        box-shadow: 0 0 20px rgba(255,255,255,0.5);
+        border-radius: 10px;
+        cursor: default;
+    }
+
+/* Поддержка тёмной темы для фото-превью */
+body[data-theme="dark"] #photoPreviewModal img {
+    border-color: #ccc;
+    box-shadow: 0 0 20px rgba(200,200,200,0.5);
+}

@@ -1,0 +1,91 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Главная страница</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+    {% if request.user %}
+    <div class="user-greeting">
+        Вы уже авторизованы как <strong>{{ request.user.full_name }}</strong>
+        <a href="{% url 'profile' %}">Профиль</a> |
+        <a href="{% url 'logout' %}">Выйти</a>
+    </div>
+    {% else %}
+
+
+    <div class="auth-wrapper">
+        <div class="auth-tabs">
+            <div class="auth-tab active" data-target="#register">Регистрация</div>
+            <div class="auth-tab" data-target="#login">Вход</div>
+        </div>
+
+        <!-- Форма регистрации -->
+        <form method="post" class="form-content active" id="register">
+            {% csrf_token %}
+            <input type="hidden" name="register">
+            {{ reg_form.non_field_errors }}
+
+            <div class="form-group">
+                <input type="text" name="full_name" placeholder="Полное имя" required>
+                {{ reg_form.full_name.errors }}
+            </div>
+
+            <div class="form-group">
+                <input type="email" name="email" placeholder="Email" required>
+                {{ reg_form.email.errors }}
+            </div>
+
+            <!-- Дата рождения -->
+            <div class="form-group">
+                <label class="input-label">Дата рождения:</label>
+                <input type="date" name="birth_date" class="date-input" required>
+                {{ reg_form.birth_date.errors }}
+            </div>
+
+            <!-- Выбор пола -->
+            <div class="form-group">
+                <label class="input-label">Пол:</label>
+                <div class="gender-buttons">
+                    {% for choice in reg_form.gender %}
+                    <label class="gender-btn">
+                        {{ choice.tag }}
+                        <span>{{ choice.choice_label }}</span>
+                    </label>
+                    {% endfor %}
+                </div>
+                {{ reg_form.gender.errors }}
+            </div>
+
+            <div class="form-group">
+                <input type="password" name="password" placeholder="Пароль" required>
+            </div>
+
+            <div class="form-group">
+                <input type="password" name="confirm_password" placeholder="Подтвердите пароль" required>
+            </div>
+
+            <button type="submit" class="download-btn">Зарегистрироваться</button>
+        </form>
+
+        <!-- Форма входа -->
+        <form method="post" class="form-content" id="login">
+            {% csrf_token %}
+            <input type="hidden" name="login">
+            <div class="form-group">
+                <input type="email" name="email" placeholder="Email" required>
+            </div>
+            <div class="form-group">
+                <input type="password" name="password" placeholder="Пароль" required>
+            </div>
+            <button type="submit">Войти</button>
+        </form>
+    </div>
+    {% endif %}
+
+    <script src="{% static 'js/scripts.js' %}"></script>
+</body>
+</html>

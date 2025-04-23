@@ -1,0 +1,73 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{% endblock %}</title>
+    <!-- Подключаем стили боковой панели -->
+    <link rel="stylesheet" href="{% static 'css/sidebar_styles.css' %}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <div class="user-home">
+        <nav class="sidebar">
+            <div class="sidebar-content">
+                <a href="{% url 'search_settings' %}" class="sidebar-item">
+                    <div class="icon">
+                        <div class="sidebar-star"></div>
+                    </div>
+                    <span>Поиск</span>
+                </a>
+                <a href="{% url 'profile' %}" class="sidebar-item">
+                    <div class="icon">
+                        <img src="{% static 'icons/profile.svg' %}" alt="Профиль" />
+                    </div>
+                    <span>Профиль</span>
+                </a>
+                <a href="{% url 'friends' %}" class="sidebar-item">
+                    <div class="icon">
+                        <img src="{% static 'icons/friends.svg' %}" alt="Друзья" />
+                    </div>
+                    <span>Друзья</span>
+                </a>
+                <a href="{% url 'messages_page' %}" class="sidebar-item">
+                    <div class="icon">
+                        <img src="{% static 'icons/messages.svg' %}" alt="Сообщения" />
+                    </div>
+                    <span>Сообщения</span>
+                </a>
+                <a href="{% url 'settings_page' %}" class="sidebar-item">
+                    <div class="icon">
+                        <img src="{% static 'icons/settings.svg' %}" alt="Настройки" />
+                    </div>
+                    <span>Настройки</span>
+                </a>
+                <a href="{% url 'compare_criteria' %}" class="sidebar-item">
+                    <div class="icon">
+                        <img src="{% static 'icons/settings.svg' %}" alt="Настройки" />
+                    </div>
+                    <span>testik</span>
+                </a>
+                <!-- Кнопка смены темы -->
+                <div class="sidebar-item theme-toggle" onclick="toggleTheme()">
+                    <div class="icon">
+                        <!-- По умолчанию светлая тема -->
+                        <img id="theme-icon" src="{% static 'icons/tema-light.svg' %}" alt="Сменить тему" />
+                    </div>
+                    <span>Сменить тему</span>
+                </div>
+            </div>
+        </nav>
+        <main class="main-window">
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+    <!-- Перед подключением user_script.js передаём пути к иконкам через JS-переменные -->
+    <script>
+        const themeDarkUrl = "{% static 'icons/tema-dark.svg' %}";
+        const themeLightUrl = "{% static 'icons/tema-light.svg' %}";
+    </script>
+    <script src="{% static 'js/user_script.js' %}"></script>
+</body>
+</html>

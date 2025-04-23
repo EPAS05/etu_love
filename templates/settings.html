@@ -1,0 +1,240 @@
+﻿{% extends 'base.html' %}
+{% load static %}
+{% block title %}Настройки{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/settings_style.css' %}">
+{% endblock %}
+{% block content %}
+<div class="settings-wrapper">
+    <div class="settings-sidebar">
+        <button class="settings-tab active" data-tab="account">Аккаунт</button>
+        <button class="settings-tab" data-tab="main-info">Основная информация</button>
+        <button class="settings-tab" data-tab="additional-info">Дополнительная информация</button>
+    </div>
+
+    <div class="settings-content">
+        <!-- Аккаунт -->
+        <div class="settings-block active" id="account">
+            <form class="settings-form">
+                <h1>Настройки аккаунта</h1>
+                <div class="form-group">
+                    <label for="email">| Электронная почта:</label>
+                    <input type="email" id="email" name="email" placeholder="example@mail.com">
+                </div>
+                <button type="button" id="changePasswordBtn" class="save-btn">Изменить пароль</button>
+                <div class="form-group">
+                    <button type="button" class="save-btn danger">Удалить аккаунт</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Основная информация -->
+        <div class="settings-block" id="main-info">
+            <form class="settings-form" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <h1>Основная информация</h1>
+
+                <div class="form-group">
+                    <label for="{{ main_form.full_name.id_for_label }}">| Полное имя:</label>
+                    {{ main_form.full_name }}
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.gender.id_for_label }}">| Пол:</label>
+                    {{ main_form.gender }}
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.birth_date.id_for_label }}">| Дата рождения:</label>
+                    {{ main_form.birth_date }}
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.city.id_for_label }}">| Город:</label>
+                    {{ main_form.city }}
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.bio.id_for_label }}">| О себе:</label>
+                    {{ main_form.bio }}
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.avatar.id_for_label }}">| Аватар:</label>
+                    {{ main_form.avatar }}
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.relationship.id_for_label }}">| В поисках:</label>
+                    {{ main_form.relationship }}
+                </div>
+
+                <button type="submit" name="edit_main_profile" class="save-btn">Сохранить информацию</button>
+            </form>
+        </div>
+
+        <!-- Дополнительная информация -->
+        <div class="settings-block" id="additional-info">
+            <form class="settings-form" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <h1>Дополнительная информация</h1>
+
+                <!-- Контейнер для сетки из 9 полей -->
+                <div class="additional-settings-grid">
+                    <div class="form-group">
+                        <label for="{{ extra_form.job.id_for_label }}">| Профессия:</label>
+                        {{ extra_form.job }}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ extra_form.height.id_for_label }}">| Рост (см):</label>
+                        {{ extra_form.height }}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ extra_form.zodiac_sign.id_for_label }}">| Знак зодиака:</label>
+                        {{ extra_form.zodiac_sign }}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ extra_form.smoking.id_for_label }}">| Курение:</label>
+                        {{ extra_form.smoking }}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ extra_form.alcohol.id_for_label }}">| Алкоголь:</label>
+                        {{ extra_form.alcohol }}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ extra_form.religion.id_for_label }}">| Религия:</label>
+                        {{ extra_form.religion }}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ extra_form.education.id_for_label }}">| Образование:</label>
+                        {{ extra_form.education }}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ extra_form.children.id_for_label }}">| Дети:</label>
+                        {{ extra_form.children }}
+                    </div>
+
+                    <div class="form-group">
+                        <label>| Языки:</label>
+                        {{ extra_form.language }}
+                    </div>
+                </div>
+
+                <!-- Блок загрузки фото -->
+                <div class="form-group photo-upload-block">
+                    <label>{{ extra_form.photos.label }}</label>
+                    {{ extra_form.photos }}
+                    <small class="form-text text-muted">{{ form.photos.help_text }}</small>
+                </div>
+
+                <!-- Интересы в виде кнопок -->
+                <div class="form-group">
+                    <label>| Интересы:</label>
+                    <div class="interests-container">
+                        {% for interest in extra_form.interests.field.queryset %}
+                            {% if interest.name == "волонтерство" %}
+                                </div><div style="margin-bottom: 10px;">Социальная активность</div><div class="interests-container">
+                            {% elif interest.name == "бег" %}
+                                </div><div style="margin-bottom: 10px;">Спорт и активный отдых</div><div class="interests-container">
+                            {% elif interest.name == "изучение языков" %}
+                                </div><div style="margin-bottom: 10px;">Образование и саморазвитие</div><div class="interests-container">
+                            {% elif interest.name == "литература" %}
+                                </div><div style="margin-bottom: 10px;">Хобби и развлечения</div><div class="interests-container">
+                            {% endif %}
+
+                        <label class="interest-btn">
+                            <input type="checkbox" name="interests" value="{{ interest.id }}"
+                                   {% if interest in extra_form.instance.interests.all %}checked{% endif %}>
+                            <img src="{{ interest.image.url }}" alt="{{ interest.name }}" class="interest-icon">
+                            <span class="interest-text">{{ interest.name }}</span>
+                        </label>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <button type="submit" name="edit_extra_profile" class="save-btn">Сохранить информацию</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно смены пароля -->
+<div id="passwordModal" class="modal">
+    <div class="modal-content">
+        <span class="close"></span>
+        <h2>Изменить пароль</h2>
+        <form method="post" id="passwordForm">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="id_current_password">Текущий пароль:</label>
+                {{ password_form.current_password }}
+                {{ password_form.current_password.errors }}
+            </div>
+            <div class="form-group">
+                <label for="id_new_password">Новый пароль:</label>
+                {{ password_form.new_password }}
+                {{ password_form.new_password.errors }}
+            </div>
+            <div class="form-group">
+                <label for="id_confirm_password">Подтвердите пароль:</label>
+                {{ password_form.confirm_password }}
+                {{ password_form.confirm_password.errors }}
+            </div>
+            <button type="submit" name="change_password" class="save-btn full-width" style="max-width: 400px; margin: 20px auto 0;">Сохранить изменения</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Управление вкладками
+    document.querySelectorAll('.settings-tab').forEach(tab => {
+        tab.addEventListener('click', function () {
+            document.querySelectorAll('.settings-tab, .settings-block').forEach(el => {
+                el.style.transition = 'none';
+                el.classList.remove('active');
+            });
+
+            setTimeout(() => {
+                this.classList.add('active');
+                const content = document.getElementById(this.dataset.tab);
+                content.style.transition = '';
+                content.classList.add('active');
+            }, 50);
+        });
+    });
+
+    // Управление модальным окном
+    const modal = document.getElementById('passwordModal');
+    const btn = document.getElementById('changePasswordBtn');
+    const span = document.querySelector('.close');
+
+    btn.onclick = () => modal.style.display = "flex";
+    span.onclick = () => modal.style.display = "none";
+    window.onclick = (e) => {
+        if (e.target == modal) modal.style.display = "none";
+    };
+
+    // Проверка паролей
+    document.getElementById('passwordForm').addEventListener('submit', function (e) {
+        const newPass = document.getElementById('id_new_password').value;
+        const confirmPass = document.getElementById('id_confirm_password').value;
+
+        if (newPass !== confirmPass) {
+            e.preventDefault();
+            alert('Пароли не совпадают!');
+        }
+    });
+
+    // Подтверждение удаления аккаунта
+    document.querySelector('.danger').addEventListener('click', () => {
+        if (!confirm('Вы уверены, что хотите удалить аккаунт? Это нельзя отменить!')) return;
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Профиль {{ user.full_name }}</title>
+</head>
+<body>
+    <div class="profile-container">
+        <img src="{{ profile.avatar.url }}" class="avatar">
+        <h1>{{ user.full_name }}, {{ profile.age }}</h1>
+        <p>Город: {{ profile.city.name }}</p>
+        <p>О себе: {{ profile.bio }}</p>
+    </div>
+<div class="profile-actions">
+    {% if user.id != request.user.id %}
+        {% if friendship_status == 'accepted' %}
+            <form action="{% url 'remove_friend' user.id %}" method="post">
+                {% csrf_token %}
+                <button class="btn btn-danger">Удалить из друзей</button>
+            </form>
+        {% elif friendship_status == 'pending' %}
+            {% if is_request_sent %}
+                <button class="btn btn-secondary" disabled>Заявка отправлена</button>
+                <form action="{% url 'cancel_friend_request' friendship_id %}" method="post">
+                    {% csrf_token %}
+                    <button class="btn btn-warning">Отменить заявку</button>
+                </form>
+            {% else %}
+                <form action="{% url 'accept_friend_request' friendship_id %}" method="post">
+                    {% csrf_token %}
+                    <button class="btn btn-success">Принять заявку</button>
+                </form>
+            {% endif %}
+        {% else %}
+            <form action="{% url 'send_friend_request' user.id %}" method="post">
+                {% csrf_token %}
+                <button class="btn btn-primary">Добавить в друзья</button>
+            </form>
+        {% endif %}
+    {% endif %}
+</div>
+<div class="reviews-section">
+    <h3>Отзывы ({{ avg_rating }} / 5)</h3>
+
+    {% if can_review %}
+    <div class="review-form">
+        <form method="post">
+            {% csrf_token %}
+            <h4>Оставить отзыв</h4>
+            <div class="rating">
+                {{ review_form.rating }}
+            </div>
+            <div class="text">
+                {{ review_form.text }}
+            </div>
+            <button type="submit" name="submit_review" class="btn btn-primary">
+                Отправить отзыв
+            </button>
+        </form>
+    </div>
+    {% endif %}
+
+    <div class="reviews-list">
+        {% for review in reviews %}
+        <div class="review-card">
+            <div class="review-header">
+                <img src="{{ review.author.profile.avatar.url }}"
+                     class="avatar-small">
+                <div class="review-author">
+                    <a href="{% url 'user_profile' review.author.id %}">
+                        {{ review.author.full_name }}
+                    </a>
+                    <div class="rating-stars">
+                        {% for _ in "12345" %}
+                            {% if forloop.counter <= review.rating %}
+                                <span class="star filled">★</span>
+                            {% else %}
+                                <span class="star">☆</span>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+                <span class="review-date">
+                    {{ review.created_at|date:"d.m.Y H:i" }}
+                </span>
+            </div>
+            <p class="review-text">{{ review.text }}</p>
+        </div>
+        {% empty %}
+        <p>Пока нет отзывов</p>
+        {% endfor %}
+    </div>
+</div>
+</body>
+</html>

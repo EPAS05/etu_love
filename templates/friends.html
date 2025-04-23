@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="friends-container">
+    <!-- Входящие заявки -->
+    <div class="requests-section">
+        <h2>Входящие заявки</h2>
+        {% for request in incoming_requests %}
+        <div class="request-card">
+            <img src="{{ request.from_user.profile.avatar.url }}" class="avatar-small">
+            <div class="request-info">
+                <a href="{% url 'user_profile' request.from_user.id %}">
+                    {{ request.from_user.full_name }}
+                </a>
+                <div class="request-actions">
+                    <form action="{% url 'accept_friend_request' request.id %}" method="post">
+                        {% csrf_token %}
+                        <button type="submit" class="btn-success">Принять</button>
+                    </form>
+                    <form action="{% url 'decline_friend_request' request.id %}" method="post">
+                        {% csrf_token %}
+                        <button type="submit" class="btn-danger">Отклонить</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <p>Нет входящих заявок</p>
+        {% endfor %}
+    </div>
+
+    <!-- Исходящие заявки -->
+    <div class="requests-section">
+        <h2>Исходящие заявки</h2>
+        {% for request in outgoing_requests %}
+        <div class="request-card">
+            <img src="{{ request.to_user.profile.avatar.url }}" class="avatar-small">
+            <div class="request-info">
+                <a href="{% url 'user_profile' request.to_user.id %}">
+                    {{ request.to_user.full_name }}
+                </a>
+                <form action="{% url 'cancel_friend_request' request.id %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-warning">Отменить</button>
+                </form>
+            </div>
+        </div>
+        {% empty %}
+        <p>Нет исходящих заявок</p>
+        {% endfor %}
+    </div>
+
+    <!-- Список друзей -->
+    <div class="friends-section">
+        <h2>Ваши друзья</h2>
+        <div class="friends-list">
+            {% for friendship in friends %}
+                <div class="friend-card">
+                    {% if friendship.from_user != request.user %}
+                        <img src="{{ friendship.from_user.profile.avatar.url }}" class="avatar-medium">
+                        <div class="friend-info">
+                            <a href="{% url 'user_profile' friendship.from_user.id %}">
+                                {{ friendship.from_user.full_name }}
+                            </a>
+                            <form action="{% url 'remove_friend' friendship.from_user.id %}" method="post">
+                                {% csrf_token %}
+                                <button type="submit" class="btn-danger">Удалить</button>
+                            </form>
+                        </div>
+                    {% else %}
+                        <img src="{{ friendship.to_user.profile.avatar.url }}" class="avatar-medium">
+                        <div class="friend-info">
+                            <a href="{% url 'user_profile' friendship.to_user.id %}">
+                                {{ friendship.to_user.full_name }}
+                            </a>
+                            <form action="{% url 'remove_friend' friendship.to_user.id %}" method="post">
+                                {% csrf_token %}
+                                <button type="submit" class="btn-danger">Удалить</button>
+                            </form>
+                        </div>
+                    {% endif %}
+                </div>
+            {% empty %}
+                <p>У вас пока нет друзей</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+{% endblock %}

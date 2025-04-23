@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<div class="matches-container">
+  {% for match in matches %}
+  {{ i }}
+  <div class="match-card">
+    <a href="{% url 'user_profile' match.profile.user.id %}" class="profile-link">
+    <img src="{{ match.profile.avatar.url }}" class="avatar">
+    <div class="info">
+      <h3>{{ match.profile.user.full_name }}, {{ match.profile.age }}</h3>
+      <p>{{ match.profile.city.name }}</p>
+      <div class="compatibility">
+        <div class="score-bar" style="width: {{ match.score }}%"></div>
+        <span>{{ match.score }}%</span>
+      </div>
+    </div>
+  </div>
+  {% empty %}
+  <p>Нет подходящих совпадений. Попробуйте изменить критерии поиска.</p>
+  {% endfor %}
+</div>
+</body>
+</html>
