@@ -18,7 +18,7 @@
                 <img class="avatar-image" src="{{ user.profile.avatar.url }}" alt="Avatar" onclick="openPhotoPreview(this.src)">
             </div>
             <h2 class="profile-info vertical-layout">
-                {{ request.user.full_name }}
+                {{ user.full_name }}
                 {% if user.profile.age %}
                 <span class="age">{{ user.profile.age }}</span>
                 {% endif %}
@@ -70,6 +70,13 @@
             <h3>| Отношение к детям</h3>
             <span>{{ user.profile.children }}</span>
         </div>
+        <h2>Увлечения:</h2>
+<div class="hobbies-grid">    {% for lang in profile.language.all %}
+    <div class="hobby-tile">
+        <span>{{ lang.name }}</span>    </div>
+    {% empty %}    <span>Нет добавленных увлечений</span>
+    {% endfor %}
+</div>
     </div>
 
     {# ============================== Дополнительная информация ============================== #}

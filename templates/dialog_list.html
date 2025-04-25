@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>Ваши диалоги</h1>
+<ul class="dialog-list">
+    {% for dialog in dialogs %}
+    <li class="dialog-item">
+        <a href="{% url 'messenger_detail' dialog.interlocutor.id %}">
+            {{ dialog.interlocutor.full_name }}
+            <span class="last-message">{{ dialog.last_message.text|truncatechars:30 }}</span>
+            <span class="timestamp">{{ dialog.last_message.timestamp|date:"d.m.Y H:i" }}</span>
+        </a>
+    </li>
+    {% empty %}
+    <li>У вас пока нет диалогов</li>
+    {% endfor %}
+</ul>
+{% endblock %}

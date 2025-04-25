@@ -1,10 +1,12 @@
-from django.shortcuts import render, redirect, get_object_or_404
-from .forms import RegistrationForm, LoginForm, ChangePasswordForm, EditMainProfileForm, EditExtraProfileForm
-from .models import User, Profile, ProfilePhoto, get_zodiac_sign, Zodiac
-from compatibility.models import  Review
-from django.db.models import Avg
-from django.core.exceptions import PermissionDenied
+from django.contrib.auth.decorators import login_required
+from authuser.forms import RegistrationForm, LoginForm, ChangePasswordForm, EditMainProfileForm, EditExtraProfileForm
+from authuser.models import User, Profile, ProfilePhoto, get_zodiac_sign, Zodiac
+from compatibility.models import Review
 from django.contrib import messages
+from django.core.exceptions import PermissionDenied
+from django.db.models import Avg
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth import authenticate, login, logout
 
 def index_page(request):
     reg_form = RegistrationForm()
@@ -25,36 +27,34 @@ def index_page(request):
             user.profile.zodiac_sign = Zodiac.objects.get(name=get_zodiac_sign(user.profile.birth_date))
             user.profile.save()
 
-            request.session['user_id'] = user.id
-            return redirect('profile')
+            authenticated_user = authenticate(request, email=user.email, password=reg_form.cleaned_data['password'])
+            if authenticated_user is not None:
+                login(request, authenticated_user)
+                return redirect('profile')
+            else:
+                pass
 
     elif 'login' in request.POST:
         login_form = LoginForm(request.POST)
         if login_form.is_valid():
-            try:
-                user = User.objects.get(email=login_form.cleaned_data['email'])
-                if user.check_password(login_form.cleaned_data['password']):
-                    request.session['user_id'] = user.id
-                    return redirect('profile')
-                login_form.add_error('password', 'Неверный пароль')
-            except User.DoesNotExist:
-                login_form.add_error('email', 'Пользователь не найден')
+            email = login_form.cleaned_data['email']
+            password = login_form.cleaned_data['password']
+            user = authenticate(request, email=email, password=password)
+            if user is not None:
+                login(request, user)
+                return redirect('profile')
+            else:
+                login_form.add_error(None, 'Неверный Email или пароль')
 
     return render(request, 'index.html', {
         'reg_form': reg_form,
         'login_form': login_form
     })
 
-
+@login_required
 def profile(request):
-    if not request.session.get('user_id'):
-        return redirect('index_page')
-
-    try:
-        user = User.objects.get(id=request.session['user_id'])
-        profile = user.profile
-    except User.DoesNotExist:
-        return redirect('index_page')
+    user = request.user
+    profile = user.profile
 
     reviews = Review.objects.filter(receiver=user).select_related('author__profile')
     avg_rating = reviews.aggregate(Avg('rating'))['rating__avg'] or 0
@@ -68,9 +68,8 @@ def profile(request):
 
     return render(request, 'profile.html', context)
 
-def logout(request):
-    if 'user_id' in request.session:
-        del request.session['user_id']
+def logout_view(request):
+    logout(request)
     return redirect('index_page')
 
 def delete_photo(request, photo_uuid):
@@ -89,14 +88,8 @@ def delete_photo(request, photo_uuid):
 
 
 def settings_page(request):
-    if not request.user.is_authenticated:
-        return redirect('index_page')
-
-    try:
-        user = User.objects.get(id=request.session['user_id'])
-        profile = request.user.profile
-    except Profile.DoesNotExist:
-        return redirect('index_page')
+    user = request.user
+    profile = request.user.profile
 
     password_form = ChangePasswordForm()
     main_form = EditMainProfileForm(instance=profile, user=user)
@@ -135,15 +128,3 @@ def settings_page(request):
         'main_form': main_form,
         'extra_form': extra_form
     })
-
-def friends(request):
-    user = request.user
-    if not request.session.get('user_id'):
-        return redirect('index_page')
-    return render(request, 'friends.html')
-
-def messages_page(request):
-    user = request.user
-    if not request.session.get('user_id'):
-        return redirect('index_page')
-    return render(request, 'messages.html')

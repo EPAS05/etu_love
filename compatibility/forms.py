@@ -1,6 +1,5 @@
+from compatibility.models import ComparisonSettings, SelectedCriterion, PairsCriteria, Review
 from django import forms
-from .models import ComparisonSettings, SelectedCriterion, PairsCriteria, Review
-from authuser.models import City, Zodiac, Religion, Alcohol, Smoking, Children, Education, Language, Interest
 
 class SelectedCriterionForm(forms.ModelForm):
     class Meta:

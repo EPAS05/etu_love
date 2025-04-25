@@ -1,0 +1,281 @@
+/* Общие стили */
+body {
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    background: url('fon.svg') no-repeat center center fixed;
+    background-size: cover;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    position: relative;
+}
+
+/* Заголовок */
+.site-title {
+    position: absolute;
+    top: 15%;
+    right: 10%;
+    color: #fff;
+    font-size: 2.2em;
+    text-align: right;
+    max-width: 400px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+    margin: 0;
+}
+
+/* Блок авторизации */
+.auth-wrapper {
+    position: absolute;
+    top: 50%;
+    right: 10%;
+    transform: translateY(-50%); /* Добавлено */
+    background: rgba(255, 255, 255, 0.95);
+    width: 420px;
+    border-radius: 16px;
+    padding: 30px 25px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+}
+
+/* Вкладки */
+.auth-tabs {
+    display: flex;
+    gap: 12px; /* Увеличен промежуток */
+    margin-bottom: 25px;
+}
+
+.auth-tab {
+    flex: 1;
+    padding: 14px; /* Увеличен padding */
+    text-align: center;
+    cursor: pointer;
+    border-radius: 10px; /* Более мягкие углы */
+    background: #f5f5f5;
+    color: #666;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); /* Плавный переход */
+    font-weight: 500;
+}
+
+    .auth-tab.active {
+        background: #562455;
+        color: white;
+        box-shadow: 0 4px 12px rgba(91, 95, 132, 0.2); /* Добавлена тень */
+    }
+
+/* Формы */
+.form-content {
+    display: none;
+}
+
+    .form-content.active {
+        display: flex;
+        flex-direction: column;
+        gap: 18px; /* Пространство между элементами */
+    }
+
+.form-group {
+    margin-bottom: 8px;
+}
+
+input {
+    width: 100%;
+    padding: 14px 16px; /* Увеличен вертикальный padding */
+    border: 2px solid #e8e8e8;
+    border-radius: 8px; /* Более мягкие углы */
+    font-size: 15px; /* Увеличен размер шрифта */
+    box-sizing: border-box;
+    transition: all 0.3s ease;
+    background: #fcfcfc;
+}
+
+    input:focus {
+        border-color: #562455;
+        box-shadow: 0 4px 12px rgba(91, 95, 132, 0.1); /* Тень при фокусе */
+        outline: none;
+    }
+
+button {
+    width: 100%;
+    padding: 16px; /* Увеличен padding */
+    background: #562455;
+    color: white;
+    border: none;
+    border-radius: 8px; /* Согласовано с другими элементами */
+    cursor: pointer;
+    margin-top: 12px;
+    font-size: 15px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    letter-spacing: 0.5px;
+}
+
+    button:hover {
+        background: #434766;
+        transform: translateY(-1px); /* Эффект приподнятия */
+        box-shadow: 0 4px 12px rgba(67, 71, 102, 0.2);
+    }
+
+/* Приветствие пользователя */
+.user-greeting {
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin: 20px 0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-size: 1.1rem;
+    border: 1px solid #e9ecef;
+    color: #000;
+    width: 600px;
+    justify-content: center;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+    .user-greeting a {
+        color: #562455;
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.2s ease;
+        padding: 6px 12px;
+        border-radius: 5px;
+    }
+
+        .user-greeting a:hover {
+            color: #fff;
+            background-color: #562455;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 6px rgba(91, 95, 132, 0.2);
+        }
+
+    .user-greeting::before {
+        content: "👋";
+        font-size: 1.4rem;
+        margin-right: 0.5rem;
+    }
+
+/* Адаптивность */
+@media (max-width: 1200px) {
+    .site-title {
+        right: 5%;
+        font-size: 2em;
+    }
+
+    .auth-wrapper {
+        right: 5%;
+    }
+}
+
+@media (max-width: 768px) {
+    .site-title {
+        position: static;
+        text-align: center;
+        margin: 30px auto;
+        max-width: 90%;
+        color: #333;
+        text-shadow: none;
+    }
+
+    .auth-wrapper {
+        position: static;
+        width: 90%;
+        margin: 20px auto;
+        background: rgba(255, 255, 255, 0.98);
+    }
+
+    .user-greeting {
+        width: 90%;
+        flex-direction: column;
+        position: static;
+        transform: none;
+        margin: 30px auto;
+    }
+}
+
+@media (max-width: 480px) {
+    .auth-tabs {
+        flex-direction: column;
+    }
+
+    .auth-tab {
+        padding: 10px;
+    }
+}
+
+/* Стили для кнопок выбора пола */
+.gender-buttons {
+    display: flex;
+    gap: 12px;
+    margin-top: 8px;
+}
+
+.gender-btn {
+    flex: 1;
+    padding: 14px 20px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    background: #f8f8f8;
+    color: #666;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.gender-btn span {
+    position: relative;
+    z-index: 1;
+}
+
+.gender-btn:hover {
+    background: #f0f0f0;
+    border-color: #d0d0d0;
+}
+
+.gender-btn input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.gender-btn input:checked + span {
+    color: #bbb;
+}
+
+.gender-btn input:checked ~ .check-bg {
+    transform: scale(1);
+}
+
+/* Анимация фона */
+.check-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #562455;
+    transform: scale(0);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 6px;
+}
+
+/* Фокус-состояние */
+.gender-btn:focus-within {
+    box-shadow: 0 0 0 3px rgba(91, 95, 132, 0.2);
+}
+
+/* Адаптивность */
+@media (max-width: 480px) {
+    .gender-buttons {
+        flex-direction: column;
+    }
+}
+.form-group .input-label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 500;
+    color: #444;
+}

@@ -1,5 +1,5 @@
+from authuser.models import User, Profile, Interest, Language, Gender, ProfilePhoto
 from django import forms
-from .models import User, Profile, Interest, City, Language, Children, Smoking, Alcohol, Religion, Zodiac, Education, Gender, ProfilePhoto, get_zodiac_sign
 from django.core.exceptions import ValidationError
 from django.core.validators import FileExtensionValidator
 from datetime import date
@@ -241,4 +241,4 @@ class StartingForm(forms.ModelForm):
         widget=forms.CheckboxSelectMultiple,
         required=False
     )
-п"""
+"""

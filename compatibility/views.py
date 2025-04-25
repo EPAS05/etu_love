@@ -1,19 +1,20 @@
-from django.dispatch import receiver
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib import messages
-from .forms import SelectedCriterionForm, ComparisonSettingsForm, PairsCriteriaForm, ReviewForm
-from .models import SelectedCriterion, ComparisonSettings, PairsCriteria, Friendship, Review
+from django.contrib.auth.decorators import login_required
+
 from authuser.models import User, Profile, Gender
-from django.forms import modelformset_factory
-from itertools import combinations
-from .services.ahp import AHPCalc
-from .services.matcher import MatcherCalc
+from compatibility.forms import SelectedCriterionForm, ComparisonSettingsForm, PairsCriteriaForm, ReviewForm
+from compatibility.models import SelectedCriterion, ComparisonSettings, PairsCriteria, Friendship, Review
+from compatibility.services.ahp import AHPCalc
+from compatibility.services.matcher import MatcherCalc
+from django.contrib import messages
+from django.core.exceptions import PermissionDenied
 from django.db.models import Q, Avg
-from datetime import date
+from django.forms import modelformset_factory
+from django.shortcuts import render, redirect, get_object_or_404
+from itertools import combinations
 
-
+@login_required
 def search_settings(request):
-    user = User.objects.get(id=request.session['user_id'])
+    user = request.user
 
     selected_criterion, _ = SelectedCriterion.objects.get_or_create(user=user)
     comparison_settings, _ = ComparisonSettings.objects.get_or_create(user=user)
@@ -55,13 +56,17 @@ def search_settings(request):
             )
         show_values_form = True
         AHPCalc.find_weights(user)
-        opposite_gender = 'Мужской' if user.profile.gender.name == 'Женский' else 'Женский'
-        gender_obj = Gender.objects.get(name=opposite_gender)
-
-        profiles = Profile.objects.filter(gender=gender_obj.id).exclude(user=user)
         raw_matches = []
+        if user.profile.relationship.name == 'Партнера':
+            opposite_gender = 'Мужской' if user.profile.gender.name == 'Женский' else 'Женский'
+            gender_obj = Gender.objects.get(name=opposite_gender)
 
-        for profile in profiles[:100]:
+            profiles = Profile.objects.filter(gender=gender_obj.id, relationship=user.profile.relationship).exclude(user=user)
+
+        elif user.profile.relationship.name == 'Общение':
+            profiles = Profile.objects.filter(relationship=user.profile.relationship).exclude(user=user)
+
+        for profile in profiles:
             score = MatcherCalc.find_compability(user, profile)
             raw_matches.append({
                 'profile': profile,
@@ -78,8 +83,9 @@ def search_settings(request):
         'matches': matches,
     })
 
+@login_required
 def compare_criteria(request):
-    user = User.objects.get(id=request.session['user_id'])
+    user = request.user
     selected_criterion = SelectedCriterion.objects.get(user=user)
     criteria = selected_criterion.criteria.all()
 
@@ -126,8 +132,9 @@ def compare_criteria(request):
         'comparisons_data': comparisons_data,
     })
 
+@login_required
 def user_profile(request, user_id):
-    user = get_object_or_404(User, pk=user_id)
+    user = request.user
     profile = get_object_or_404(Profile, user=user)
     if request.user.id == user_id:
         return redirect('profile')
@@ -160,6 +167,7 @@ def user_profile(request, user_id):
     }
     return render(request, 'user_profile.html', context)
 
+@login_required
 def friends(request):
     incoming_requests = Friendship.objects.filter(
         to_user=request.user,

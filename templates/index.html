@@ -8,13 +8,6 @@
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
 </head>
 <body>
-    {% if request.user %}
-    <div class="user-greeting">
-        Вы уже авторизованы как <strong>{{ request.user.full_name }}</strong>
-        <a href="{% url 'profile' %}">Профиль</a> |
-        <a href="{% url 'logout' %}">Выйти</a>
-    </div>
-    {% else %}
 
 
     <div class="auth-wrapper">
@@ -84,7 +77,6 @@
             <button type="submit">Войти</button>
         </form>
     </div>
-    {% endif %}
 
     <script src="{% static 'js/scripts.js' %}"></script>
 </body>

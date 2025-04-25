@@ -1,7 +1,5 @@
-import numpy as np
-from math import sqrt, log
-from authuser.models import User, Profile
 from compatibility.models import Criterion, PairsCriteria, SelectedCriterion, CriterionWeight
+import numpy as np
 
 class AHPCalc:
     @staticmethod

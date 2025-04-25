@@ -30,7 +30,7 @@ ALLOWED_HOSTS = []
 
 
 # Application definition
-
+ASGI_APPLICATION = 'piv.asgi.application'
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -40,17 +40,25 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'authuser',
     'compatibility',
+    'channels',
+    'messenger'
 ]
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer",
+    },
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'authuser.middleware.AuthMiddleware',
 ]
 
 ROOT_URLCONF = 'piv.urls'
@@ -84,6 +92,7 @@ DATABASES = {
     }
 }
 
+AUTH_USER_MODEL = 'authuser.User'
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
@@ -124,8 +133,16 @@ STATICFILES_DIRS = [
     BASE_DIR / "static",
 ]
 
+
+STATIC_ROOT = BASE_DIR / 'staticfiles_collected'
+
+STATICFILES_STORAGE = 'whitenoise.storage.ManifestStaticFilesStorage'
+
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+LOGIN_URL = '' # Укажите реальный URL вашей страницы логина
+LOGIN_REDIRECT_URL = '/profile/'
 
 FILE_UPLOAD_MAX_MEMORY_SIZE = 5 * 1024 * 1024  # 5MB
 DATA_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024  # 10MB

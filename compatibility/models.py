@@ -1,5 +1,5 @@
-from django.db import models
 from authuser.models import User, Profile, Zodiac, Religion, City, Children, Alcohol, Language, Smoking, Interest, Education
+from django.db import models
 
 class Criterion(models.Model):
     name = models.CharField(max_length=30)
