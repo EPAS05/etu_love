@@ -1,8 +1,7 @@
 from django.contrib.auth.decorators import login_required
-
 from authuser.models import User, Profile, Gender
 from compatibility.forms import SelectedCriterionForm, ComparisonSettingsForm, PairsCriteriaForm, ReviewForm
-from compatibility.models import SelectedCriterion, ComparisonSettings, PairsCriteria, Friendship, Review
+from compatibility.models import SelectedCriterion, ComparisonSettings, PairsCriteria, Friendship, Review, CriterionWeight
 from compatibility.services.ahp import AHPCalc
 from compatibility.services.matcher import MatcherCalc
 from django.contrib import messages
@@ -23,6 +22,7 @@ def search_settings(request):
     values_form = None
     show_values_form = False
     matches = []
+    cr = 0
 
     if request.method == 'POST':
         if 'criteria_submit' in request.POST:
@@ -56,6 +56,8 @@ def search_settings(request):
             )
         show_values_form = True
         AHPCalc.find_weights(user)
+        criterion_weight = CriterionWeight.objects.filter(user=user).first()
+        cr = round(criterion_weight.consistency_ratio, 2) if criterion_weight else 0
         raw_matches = []
         if user.profile.relationship.name == 'Партнера':
             opposite_gender = 'Мужской' if user.profile.gender.name == 'Женский' else 'Женский'
@@ -81,6 +83,7 @@ def search_settings(request):
         'show_values_section': show_values_form,
         'user': user,
         'matches': matches,
+        'cr': cr,
     })
 
 @login_required
@@ -135,23 +138,23 @@ def compare_criteria(request):
 @login_required
 def user_profile(request, user_id):
     user = request.user
-    profile = get_object_or_404(Profile, user=user)
-    if request.user.id == user_id:
+    if user.id == user_id:
         return redirect('profile')
 
-    can_review = False
-    if request.user.is_authenticated and request.user != user:
-        can_review = not Review.objects.filter(author=request.user, receiver=user).exists()
+    user_prof = get_object_or_404(User, id=user_id)
+    profile = get_object_or_404(Profile, user=user_prof)
 
-    reviews = Review.objects.filter(receiver=user).select_related('author__profile')
+    can_review = not Review.objects.filter(author=user, receiver=user_prof).exists()
+
+    reviews = Review.objects.filter(receiver=user_prof).select_related('author__profile')
     avg_rating = reviews.aggregate(Avg('rating'))['rating__avg'] or 0
 
     if request.method == 'POST' and 'submit_review' in request.POST:
         form = ReviewForm(request.POST)
         if form.is_valid() and can_review:
             review = form.save(commit=False)
-            review.author = request.user
-            review.receiver = user
+            review.author = user
+            review.receiver = user_prof
             review.save()
             return redirect('user_profile', user_id=user_id)
     else:
@@ -159,7 +162,7 @@ def user_profile(request, user_id):
 
     context = {
         'profile': profile,
-        'user': user,
+        'user': user_prof,
         'reviews': reviews,
         'avg_rating': round(avg_rating, 1),
         'review_form': form,

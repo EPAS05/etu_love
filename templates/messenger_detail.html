@@ -7,7 +7,11 @@
      data-interlocutor-id="{{ interlocutor.id }}"
      data-user-id="{{ user.id }}" {# <-- Используем переменную user из контекста #}
      data-ws-url-base="{{ ws_url_base }}/"> {# <-- Используем вычисленный URL и добавляем конечный слэш #}
-    <h2>Диалог с {{ interlocutor.full_name }}</h2>
+    <h2>Диалог с
+        <a href="{% url 'user_profile' interlocutor.id %}" class="profile-link">
+            {{ interlocutor.full_name }}
+        </a>
+    </h2>
 
     <div class="messages" id="messages">
         {# ... сообщения загружаются здесь ... #}

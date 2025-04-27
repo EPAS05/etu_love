@@ -1,6 +1,6 @@
 from django.contrib.auth.decorators import login_required
 from authuser.forms import RegistrationForm, LoginForm, ChangePasswordForm, EditMainProfileForm, EditExtraProfileForm
-from authuser.models import User, Profile, ProfilePhoto, get_zodiac_sign, Zodiac
+from authuser.models import User, ProfilePhoto, get_zodiac_sign, Zodiac
 from compatibility.models import Review
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
@@ -8,9 +8,14 @@ from django.db.models import Avg
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 
+
 def index_page(request):
     reg_form = RegistrationForm()
     login_form = LoginForm()
+    reg = False
+
+    if request.user.is_authenticated:
+        reg = True
 
     if 'register' in request.POST:
         reg_form = RegistrationForm(request.POST)
@@ -48,8 +53,10 @@ def index_page(request):
 
     return render(request, 'index.html', {
         'reg_form': reg_form,
-        'login_form': login_form
+        'login_form': login_form,
+        'reg': reg
     })
+
 
 @login_required
 def profile(request):
@@ -68,14 +75,14 @@ def profile(request):
 
     return render(request, 'profile.html', context)
 
+
 def logout_view(request):
     logout(request)
     return redirect('index_page')
 
+@login_required
 def delete_photo(request, photo_uuid):
-    if not request.user.is_authenticated:
-        return redirect('index_page')
-    user = User.objects.get(id=request.session['user_id'])
+    user = request.user
     profile = user.profile
     photo = get_object_or_404(ProfilePhoto, uuid=photo_uuid)
 
@@ -86,7 +93,7 @@ def delete_photo(request, photo_uuid):
     messages.success(request, "Фото успешно удалено.")
     return redirect('profile')
 
-
+@login_required
 def settings_page(request):
     user = request.user
     profile = request.user.profile

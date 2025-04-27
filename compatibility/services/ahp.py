@@ -1,4 +1,4 @@
-from compatibility.models import Criterion, PairsCriteria, SelectedCriterion, CriterionWeight
+from compatibility.models import PairsCriteria, SelectedCriterion, CriterionWeight
 import numpy as np
 
 class AHPCalc:
@@ -36,8 +36,8 @@ class AHPCalc:
 
         consistency = AHPCalc._check_consistency(matrix)
 
-        if consistency['cr'] > 0.1:
-            raise ValueError("Матрица не согласована. CR = {:.2f}".format(consistency['cr']))
+        #if consistency['cr'] > 0.1:
+        #    raise ValueError("Матрица не согласована. CR = {:.2f}".format(consistency['cr']))
 
         weights = AHPCalc._calculate_eigenvector(matrix)
 
