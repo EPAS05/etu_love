@@ -1,10 +1,10 @@
 from django.contrib.auth.decorators import login_required
-from authuser.forms import RegistrationForm, LoginForm, ChangePasswordForm, EditMainProfileForm, EditExtraProfileForm
+from authuser.forms import RegistrationForm, LoginForm, ChangePasswordForm, EditMainProfileForm, EditExtraProfileForm, BigProfileForm
 from authuser.models import User, ProfilePhoto, get_zodiac_sign, Zodiac
-from compatibility.models import Review
+from compatibility.models import Review, Friendship
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
-from django.db.models import Avg
+from django.db.models import Avg, Q
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 
@@ -66,8 +66,14 @@ def profile(request):
     reviews = Review.objects.filter(receiver=user).select_related('author__profile')
     avg_rating = reviews.aggregate(Avg('rating'))['rating__avg'] or 0
 
+    matches_cnt = User.objects.filter(
+        Q(sent_requests__to_user=user, sent_requests__status='accepted') |
+        Q(received_requests__from_user=user, received_requests__status='accepted')
+    ).distinct().count()
+
     context = {
         'user': user,
+        'matches_cnt': matches_cnt,
         'profile': profile,
         'reviews': reviews,
         'avg_rating': round(avg_rating, 1),
@@ -135,3 +141,26 @@ def settings_page(request):
         'main_form': main_form,
         'extra_form': extra_form
     })
+
+@login_required()
+def profile_settings(request):
+    user = request.user
+    form = BigProfileForm(instance=user.profile, user=user)
+
+    if request.method == 'POST':
+        form = BigProfileForm(request.POST, request.FILES, instance=profile, user=user)
+        if form.is_valid():
+            form.save(user)
+            return redirect('profile')
+
+    context = {
+        'user': user,
+        'profile': profile,
+        'form': form,
+    }
+
+    return render(request, 'profile_settings.html', context)
+
+
+
+

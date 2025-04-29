@@ -142,6 +142,9 @@
                 {% endfor %}
             </div>
         </div>
+        <a href="{% url 'prosettings' %}" class="sidebar-item">
+                    <span>НАСТРОЦКИ ВАННАЯЯЯЯЯ</span>
+                </a>
     </div>
 
     {# ============================== Статистические блоки ============================== #}
@@ -149,7 +152,7 @@
         <div class="three-squares">
             <div class="square">
                 <h2>Друзья</h2>
-                <p class="count">0</p>
+                <p class="count">{{ matches_cnt }}</p>
             </div>
             <div class="square">
                 <h2>Подписчики</h2>
@@ -214,7 +217,6 @@
         <p>Пока нет отзывов</p>
         {% endfor %}
     </div>
-
 
 
 {% endblock %}

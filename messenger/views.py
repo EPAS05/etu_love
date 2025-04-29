@@ -3,6 +3,8 @@ from authuser.models import User
 from django.shortcuts import render, get_object_or_404
 from messenger.models import Message
 from django.db.models import Q, Max
+from django.http import HttpResponseForbidden
+from django.utils import timezone
 
 
 def messenger(request):
@@ -11,6 +13,12 @@ def messenger(request):
     sent_by_user_ids = Message.objects.filter(sender=current_user).values_list('receiver_id', flat=True)
 
     interlocutor_ids = set(list(sent_by_user_ids) + list(sent_to_user_ids))
+
+    try:
+        ai_user = User.objects.get(id=11)
+        interlocutor_ids.add(ai_user.id)
+    except User.DoesNotExist:
+        print("Dialog list: AI user not found in database.")
 
     interlocutors = User.objects.filter(id__in=interlocutor_ids)
 
@@ -22,11 +30,17 @@ def messenger(request):
                receiver=interlocutor) |
              Q(sender=interlocutor, receiver=current_user))
         ).order_by('-timestamp').first()
-        if last_message:
+        if last_message or (hasattr(interlocutor, 'is_ai') and interlocutor.is_ai):
             dialog_info = {
                 'interlocutor': interlocutor,
                 'last_message': last_message
             }
+
+            if (hasattr(interlocutor, 'is_ai') and interlocutor.is_ai) and not last_message:
+                dialog_info['last_message'] = type('obj', (object,), {
+                    'text': "Начать диалог с нейросетью",
+                    'timestamp': timezone.now()
+                })()
             dialogs_data.append(dialog_info)
 
     dialogs_data.sort(key=lambda x: x['last_message'].timestamp, reverse=True)
@@ -67,7 +81,7 @@ def messenger_detail(request, user_id):
         Q(sender=interlocutor, receiver=user)
     ).order_by('timestamp')
 
-    if messages.count() == 0:
+    """if messages.count() == 0:
         try:
             Message.objects.create(
                 sender=user,
@@ -81,7 +95,7 @@ def messenger_detail(request, user_id):
             ).order_by('timestamp')
             print(f"Debug: Created a test message.") # Отладочный вывод
         except Exception as e:
-             print(f"Error creating test message: {e}")
+             print(f"Error creating test message: {e}")"""
 
 
     print(f"Debug: Found {messages.count()} messages")  # Отладочный вывод

@@ -1,5 +1,6 @@
 from django.contrib.auth.decorators import login_required
 from authuser.models import User, Profile, Gender
+from authuser.views import settings_page
 from compatibility.forms import SelectedCriterionForm, ComparisonSettingsForm, PairsCriteriaForm, ReviewForm
 from compatibility.models import SelectedCriterion, ComparisonSettings, PairsCriteria, Friendship, Review, CriterionWeight
 from compatibility.services.ahp import AHPCalc
@@ -14,6 +15,9 @@ from itertools import combinations
 @login_required
 def search_settings(request):
     user = request.user
+
+    if user.profile.relationship is None:
+        return redirect(settings_page)
 
     selected_criterion, _ = SelectedCriterion.objects.get_or_create(user=user)
     comparison_settings, _ = ComparisonSettings.objects.get_or_create(user=user)
@@ -259,7 +263,3 @@ def remove_friend(request, friend_id):
     friendship.delete()
     messages.success(request, "Пользователь удален из друзей")
     return redirect('friends')
-
-
-
-

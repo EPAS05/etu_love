@@ -15,6 +15,21 @@ class CustomUserManager(BaseUserManager):
         user.save(using=self._db)
         return user
 
+    def create_ai_user(self, email, full_name, **extra_fields):
+        extra_fields.setdefault('is_active', True)
+        extra_fields.setdefault('is_staff', False)
+        extra_fields.setdefault('is_superuser', False)
+        extra_fields.setdefault('is_ai', True)
+        if not email:
+            raise ValueError('email')
+        if not full_name:
+            raise ValueError('name')
+
+        user = self.model(email=email, full_name=full_name, **extra_fields)
+        user.set_unusable_password()
+        user.save(using=self._db)
+        return user
+
     def create_superuser(self, email, full_name, password=None, **extra_fields):
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)
@@ -25,6 +40,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(unique=True)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
+    is_ai = models.BooleanField(default=False)
 
     objects = CustomUserManager()
 

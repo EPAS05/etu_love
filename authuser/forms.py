@@ -196,6 +196,17 @@ class EditExtraProfileForm(forms.ModelForm):
         for field in ['smoking', 'alcohol', 'religion', 'education', 'children']:
             self.fields[field].empty_label = "Не указано"
 
+    def _validate_image(self, image):
+        if image:
+            if image.size > 5 * 1024 * 1024:
+                raise forms.ValidationError("Максимальный размер файла - 5 МБ")
+            if not image.name.lower().endswith(('.png', '.jpg', '.jpeg', '.webp')):
+                raise forms.ValidationError("Допустимые форматы: PNG, JPG, JPEG, WEBP")
+        return image
+
+    def clean_avatar(self):
+        return self._validate_image(self.cleaned_data.get('avatar'))
+
     def clean_job(self):
         job = self.cleaned_data.get('job')
         if job and len(job) > 20:
@@ -227,8 +238,14 @@ class EditExtraProfileForm(forms.ModelForm):
             ProfilePhoto.objects.create(profile=instance, image=photo, uuid=uid)
         return instance
 
-"""
-class StartingForm(forms.ModelForm):
+
+class BigProfileForm(forms.ModelForm):
+    full_name = forms.CharField(
+        max_length=100,
+        label="Полное имя",
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Иванов Иван Иванович'})
+    )
+
     interests = forms.ModelMultipleChoiceField(
         queryset=Interest.objects.all(),
         widget=forms.CheckboxSelectMultiple,
@@ -241,4 +258,104 @@ class StartingForm(forms.ModelForm):
         widget=forms.CheckboxSelectMultiple,
         required=False
     )
-"""
+
+    photos = MultipleFileField(
+        required=False,
+        label="Добавить фотографии",
+        help_text="Можно выбрать несколько файлов",
+        validators=[FileExtensionValidator(allowed_extensions=['jpg', 'jpeg', 'png', 'webp'])]
+    )
+
+    class Meta:
+        model = Profile
+        fields = ['avatar', 'gender', 'birth_date', 'city',
+            'bio', 'relationship', 'job', 'height',
+            'smoking', 'alcohol', 'religion',
+            'education', 'children', 'interests',
+            'language',
+                  ]
+        widgets = {
+            'birth_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'bio': forms.Textarea(attrs={'rows': 3, 'class': 'form-control', 'maxlength': 200}),
+            'city': forms.Select(attrs={'class': 'form-select'}),
+            'gender': forms.Select(attrs={'class': 'form-select'}),
+            'avatar': forms.ClearableFileInput(attrs={'class': 'form-control'}),
+            'relationship': forms.Select(attrs={'class': 'form-select'}),
+            'height': forms.NumberInput(attrs={'min': 100, 'max': 250}),
+            'job': forms.TextInput(),
+            'smoking': forms.Select(),
+            'alcohol': forms.Select(),
+            'religion': forms.Select(),
+            'education': forms.Select(),
+            'children': forms.Select(),
+        }
+
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+
+        if user:
+            self.fields['full_name'].initial = user.full_name
+
+        for field in ['smoking', 'alcohol', 'religion', 'education', 'children', 'gender', 'city']:
+            self.fields[field].empty_label = "Не указано"
+
+    def clean_job(self):
+        job = self.cleaned_data.get('job')
+        if job and len(job) > 20:
+            raise forms.ValidationError("Максимальная длина - 20 символов")
+        return job
+
+    def _validate_image(self, image):
+        if image:
+            if image.size > 5 * 1024 * 1024:
+                raise forms.ValidationError("Максимальный размер файла - 5 МБ")
+            if not image.name.lower().endswith(('.png', '.jpg', '.jpeg', '.webp')):
+                raise forms.ValidationError("Допустимые форматы: PNG, JPG, JPEG, WEBP")
+        return image
+
+    def clean_avatar(self):
+        return self._validate_image(self.cleaned_data.get('avatar'))
+
+    def clean_photos(self):
+        photos = self.files.getlist('photos')
+        max_size = 5 * 1024 * 1024  # 5MB
+
+        for photo in photos:
+            if photo.size > max_size:
+                raise forms.ValidationError(
+                    f"Файл {photo.name} слишком большой (максимум 5 МБ)"
+                )
+        return photos
+
+    def clean_interests(self):
+        selected_interests = self.cleaned_data.get('interests')
+        if len(selected_interests) > 5:
+            raise forms.ValidationError("Нельзя выбрать больше 5 интересов")
+        return selected_interests
+
+    def clean_full_name(self):
+        full_name = self.cleaned_data.get('full_name')
+        if len(full_name) < 3:
+            raise forms.ValidationError("Полное имя должно содержать не менее 3 символов")
+        return full_name
+
+    def save(self, user, commit=True):
+        user.full_name = self.cleaned_data.get('full_name')
+        user.save()
+
+        profile = super().save(commit=False)
+
+        if not self.cleaned_data.get('avatar'):
+            profile.avatar = 'avatars/default_avatar.jpg'  # Проверьте правильность пути!
+
+        if commit:
+            profile.save()
+            self.save_m2m()
+
+        for photo in self.cleaned_data.get('photos', []):
+            uid = shortuuid.uuid()
+            ProfilePhoto.objects.create(profile=profile, image=photo, uuid=uid)
+
+        return profile
+
