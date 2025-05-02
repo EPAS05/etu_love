@@ -1,0 +1,199 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: #f0f0f0;
+    color: #1e293b;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    transition: background 0.3s, color 0.3s;
+    padding: 2rem 4%;
+}
+
+.main-window {
+    flex: 1;
+    padding: 10px 0;
+    max-width: 100%;
+    margin: 0 auto;
+    width: 100%;
+}
+
+form {
+    margin: auto;
+    width: 70%;
+    padding: 0 2%;
+}
+
+form > h1 {
+    text-align: center;
+    margin: 1.5rem 0 3rem;
+    font-size: 2.4rem;
+    font-weight: 700;
+    color: #5B5F84;
+    letter-spacing: -0.5px;
+}
+
+.comparison-grid {
+    display: grid;
+    gap: 2rem;
+    grid-template-columns: repeat(2, minmax(80%, 1fr));
+    justify-content: center;
+    margin-bottom: 2rem;
+    width: 100%;
+}
+
+.comparison-item {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    border: 1px solid #e2e8f0;
+    transition: transform 0.2s, box-shadow 0.2s;
+    position: relative;
+    animation: slideIn 0.4s ease-out forwards;
+}
+
+.comparison-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px rgba(0,0,0,0.1);
+}
+
+.comparison-item h3 {
+    margin: 0 0 1.5rem;
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #1e293b;
+    text-align: center;
+    padding: 0.5rem;
+    background: rgba(99, 102, 241, 0.05);
+    border-radius: 8px;
+}
+
+.radio-group {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.radio-label {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.6rem 1.2rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: white;
+    flex-grow: 1;
+    text-align: center;
+    width: 20px;
+    justify-content: center;
+}
+
+.radio-label:hover {
+    border-color: #5B5F84;
+    background: rgba(99, 102, 241, 0.05);
+}
+
+.radio-label input[type="radio"]:checked + .radio-text {
+    color: #5B5F84;
+    font-weight: 600;
+}
+
+.btn-submit {
+    display: block;
+    width: auto;
+    margin: 3rem auto 1rem;
+    padding: 1rem 3rem;
+    border: none;
+    border-radius: 10px;
+    background: #5B5F84;
+    color: white;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.btn-submit:hover {
+    background: #818CF8;
+    transform: translateY(-1px);
+    box-shadow: 0 5px 10px rgba(0,0,0,0.15);
+}
+
+/* ==================== Dark Theme ==================== */
+body[data-theme="dark"] {
+    background: #1a1a1a; 
+    color: #e0e3e7;       
+}
+
+body[data-theme="dark"] .comparison-item {
+    background: #2a2a2a;  
+    border-color: #2d2f33; 
+    box-shadow: 0 4px 8px rgba(0,0,0,0.25);
+}
+
+body[data-theme="dark"] .comparison-item h3 {
+    background: rgba(108, 117, 125, 0.15);  
+    color: #8b939c;                       
+    border: 1px solid rgba(108, 117, 125, 0.2);
+}
+
+body[data-theme="dark"] .radio-label {
+    background: rgba(108, 117, 125, 0.15);  
+    border-color: #34373c; 
+    color: #c2c6cc;     
+}
+
+body[data-theme="dark"] .radio-label:hover {
+    background: rgba(173, 181, 189, 0.08); 
+    border-color: #6c757d;                 
+}
+
+body[data-theme="dark"] .radio-label input[type="radio"]:checked + .radio-text {
+    color: #8b939c;                       
+    text-shadow: 0 0 8px rgba(140, 146, 153, 0.15);
+}
+
+body[data-theme="dark"] .btn-submit {
+    background: #5B5F84;                  
+    box-shadow: 0 2px 12px rgba(73, 80, 87, 0.25);
+}
+
+body[data-theme="dark"] .btn-submit:hover {
+    background: #5a6268;                 
+    transform: translateY(-2px);
+}
+
+/* Глобальные переходы */
+body[data-theme="dark"],
+body[data-theme="dark"] *:not(.no-transition) {
+    transition: 
+        background-color 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+        color 0.2s ease,
+        border-color 0.3s ease,
+        box-shadow 0.3s ease;
+}
+
+/* Модальные окна */
+body[data-theme="dark"] .modal-content {
+    background: #1e2023;              
+    border-color: #373b3e;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+}
+
+body[data-theme="dark"] .close {
+    color: #6c757d;                   
+}
+
+body[data-theme="dark"] .close:hover {
+    color: #868e96;                   
+}

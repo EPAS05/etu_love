@@ -43,12 +43,6 @@
                     </div>
                     <span>Настройки</span>
                 </a>
-                <a href="{% url 'compare_criteria' %}" class="sidebar-item">
-                    <div class="icon">
-                        <img src="{% static 'icons/settings.svg' %}" alt="Настройки" />
-                    </div>
-                    <span>testik</span>
-                </a>
                 <!-- Кнопка смены темы -->
                 <div class="sidebar-item theme-toggle" onclick="toggleTheme()">
                     <div class="icon">
@@ -63,7 +57,6 @@
             {% block content %}{% endblock %}
         </main>
     </div>
-    <!-- Перед подключением user_script.js передаём пути к иконкам через JS-переменные -->
     <script>
         const themeDarkUrl = "{% static 'icons/tema-dark.svg' %}";
         const themeLightUrl = "{% static 'icons/tema-light.svg' %}";

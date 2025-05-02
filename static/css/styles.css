@@ -25,9 +25,9 @@ body {
 /* Блок авторизации */
 .auth-wrapper {
     position: absolute;
-    top: 50%;
+    top: 15%;
     right: 10%;
-    transform: translateY(-50%); /* Добавлено */
+    /*transform: translateY(-50%) */
     background: rgba(255, 255, 255, 0.95);
     width: 420px;
     border-radius: 16px;
@@ -38,26 +38,26 @@ body {
 /* Вкладки */
 .auth-tabs {
     display: flex;
-    gap: 12px; /* Увеличен промежуток */
+    gap: 12px;
     margin-bottom: 25px;
 }
 
 .auth-tab {
     flex: 1;
-    padding: 14px; /* Увеличен padding */
+    padding: 14px; 
     text-align: center;
     cursor: pointer;
-    border-radius: 10px; /* Более мягкие углы */
+    border-radius: 10px;
     background: #f5f5f5;
     color: #666;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); /* Плавный переход */
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     font-weight: 500;
 }
 
     .auth-tab.active {
         background: #562455;
         color: white;
-        box-shadow: 0 4px 12px rgba(91, 95, 132, 0.2); /* Добавлена тень */
+        box-shadow: 0 4px 12px rgba(91, 95, 132, 0.2); 
     }
 
 /* Формы */
@@ -68,7 +68,7 @@ body {
     .form-content.active {
         display: flex;
         flex-direction: column;
-        gap: 18px; /* Пространство между элементами */
+        gap: 18px;
     }
 
 .form-group {
@@ -77,10 +77,10 @@ body {
 
 input {
     width: 100%;
-    padding: 14px 16px; /* Увеличен вертикальный padding */
+    padding: 14px 16px; 
     border: 2px solid #e8e8e8;
-    border-radius: 8px; /* Более мягкие углы */
-    font-size: 15px; /* Увеличен размер шрифта */
+    border-radius: 8px; 
+    font-size: 15px; 
     box-sizing: border-box;
     transition: all 0.3s ease;
     background: #fcfcfc;
@@ -88,17 +88,17 @@ input {
 
     input:focus {
         border-color: #562455;
-        box-shadow: 0 4px 12px rgba(91, 95, 132, 0.1); /* Тень при фокусе */
+        box-shadow: 0 4px 12px rgba(91, 95, 132, 0.1); 
         outline: none;
     }
 
 button {
     width: 100%;
-    padding: 16px; /* Увеличен padding */
+    padding: 16px; 
     background: #562455;
     color: white;
     border: none;
-    border-radius: 8px; /* Согласовано с другими элементами */
+    border-radius: 8px; 
     cursor: pointer;
     margin-top: 12px;
     font-size: 15px;
@@ -109,7 +109,7 @@ button {
 
     button:hover {
         background: #434766;
-        transform: translateY(-1px); /* Эффект приподнятия */
+        transform: translateY(-1px);
         box-shadow: 0 4px 12px rgba(67, 71, 102, 0.2);
     }
 
@@ -233,6 +233,7 @@ button {
 .gender-btn:hover {
     background: #f0f0f0;
     border-color: #d0d0d0;
+    color: #444;
 }
 
 .gender-btn input[type="radio"] {
@@ -246,6 +247,8 @@ button {
 }
 
 .gender-btn input:checked ~ .check-bg {
+    background: #562455;
+    border: 2px solid #562455;
     transform: scale(1);
 }
 
@@ -264,7 +267,7 @@ button {
 
 /* Фокус-состояние */
 .gender-btn:focus-within {
-    box-shadow: 0 0 0 3px rgba(91, 95, 132, 0.2);
+    box-shadow: 0 0 0 3px rgba(86, 36, 85, 0.5);
 }
 
 /* Адаптивность */
@@ -279,3 +282,4 @@ button {
     font-weight: 500;
     color: #444;
 }
+

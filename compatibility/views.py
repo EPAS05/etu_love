@@ -149,9 +149,17 @@ def user_profile(request, user_id):
     profile = get_object_or_404(Profile, user=user_prof)
 
     can_review = not Review.objects.filter(author=user, receiver=user_prof).exists()
-
     reviews = Review.objects.filter(receiver=user_prof).select_related('author__profile')
     avg_rating = reviews.aggregate(Avg('rating'))['rating__avg'] or 0
+
+    friendship = Friendship.objects.filter(
+        (Q(from_user=user, to_user=user_prof) | Q(from_user=user_prof, to_user=user)),
+        status__in=['pending', 'accepted']
+    ).first()
+
+    friendship_status = friendship.status if friendship else 'none'
+    friendship_id = friendship.id if friendship else None
+    is_request_sent = friendship.from_user == user if friendship else False
 
     if request.method == 'POST' and 'submit_review' in request.POST:
         form = ReviewForm(request.POST)
@@ -171,6 +179,9 @@ def user_profile(request, user_id):
         'avg_rating': round(avg_rating, 1),
         'review_form': form,
         'can_review': can_review,
+        'friendship_status': friendship_status,
+        'friendship_id': friendship_id,
+        'is_request_sent': is_request_sent
     }
     return render(request, 'user_profile.html', context)
 

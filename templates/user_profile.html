@@ -1,98 +1,308 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Профиль {{ user.full_name }}</title>
-</head>
-<body>
-    <div class="profile-container">
-        <img src="{{ profile.avatar.url }}" class="avatar">
-        <h1>{{ user.full_name }}, {{ profile.age }}</h1>
-        <p>Город: {{ profile.city.name }}</p>
-        <p>О себе: {{ profile.bio }}</p>
-    </div>
-<div class="profile-actions">
-    {% if user.id != request.user.id %}
-        {% if friendship_status == 'accepted' %}
-            <form action="{% url 'remove_friend' user.id %}" method="post">
-                {% csrf_token %}
-                <button class="btn btn-danger">Удалить из друзей</button>
-            </form>
-        {% elif friendship_status == 'pending' %}
-            {% if is_request_sent %}
-                <button class="btn btn-secondary" disabled>Заявка отправлена</button>
-                <form action="{% url 'cancel_friend_request' friendship_id %}" method="post">
-                    {% csrf_token %}
-                    <button class="btn btn-warning">Отменить заявку</button>
-                </form>
-            {% else %}
-                <form action="{% url 'accept_friend_request' friendship_id %}" method="post">
-                    {% csrf_token %}
-                    <button class="btn btn-success">Принять заявку</button>
-                </form>
-            {% endif %}
-        {% else %}
-            <form action="{% url 'send_friend_request' user.id %}" method="post">
-                {% csrf_token %}
-                <button class="btn btn-primary">Добавить в друзья</button>
-            </form>
-        {% endif %}
-    {% endif %}
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Профиль{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/profile_style.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div>
+    <h1 style="margin-bottom: 10px;">профиль</h1>
 </div>
-<div class="reviews-section">
-    <h3>Отзывы ({{ avg_rating }} / 5)</h3>
 
-    {% if can_review %}
-    <div class="review-form">
-        <form method="post">
-            {% csrf_token %}
-            <h4>Оставить отзыв</h4>
-            <div class="rating">
-                {{ review_form.rating }}
+<div class="stats">
+    <!-- ==================== 1. Блок профиля ==================== -->
+    <div class="profile-card">
+        <div class="profile-header">
+            <div class="avatar-wrapper">
+                <img class="avatar"
+                     src="{{ user.profile.avatar.url }}"
+                     alt="Profile photo"
+                     onclick="openPhotoPreview(this.src)">
             </div>
-            <div class="text">
-                {{ review_form.text }}
+
+            <div class="profile-meta">
+                <div class="name-age-group">
+                    <!-- Новый контейнер -->
+                    <h1 class="user-name">
+                        {{ user.full_name }}
+                        <a href="{% url 'settings_page' %}" class="edit-profile-btn">
+                            <img style="width: 25px !important; height: 25px !important; object-fit: contain;" src="{% static 'icons/edit.svg' %}" alt="Редактировать" class="edit-icon">
+                        </a>
+                    </h1>
+                    {% if user.profile.age %}
+
+                    <div class="age-display">
+                        <span class="age-value">{{ user.profile.age }}</span>
+                        <span class="age-label">лет</span>
+                    </div>
+                    {% endif %}
+                </div>
             </div>
-            <button type="submit" name="submit_review" class="btn btn-primary">
-                Отправить отзыв
-            </button>
-        </form>
+        </div>
+
+        <div class="bio-section">
+            <h3 class="section-title">О себе</h3>
+            <div class="bio-frame">
+                <!-- Новая рамка -->
+                <p class="bio-text">{{ user.profile.bio }}</p>
+            </div>
+        </div>
     </div>
-    {% endif %}
 
-    <div class="reviews-list">
-        {% for review in reviews %}
-        <div class="review-card">
-            <div class="review-header">
-                <img src="{{ review.author.profile.avatar.url }}"
-                     class="avatar-small">
-                <div class="review-author">
-                    <a href="{% url 'user_profile' review.author.id %}">
-                        {{ review.author.full_name }}
-                    </a>
-                    <div class="rating-stars">
+    <!-- ==================== 2. Информация о пользователе ==================== -->
+    <div class="stat-box animate rectangle-box skip-box">
+        <h2 style="text-align: center; margin-bottom: 10px;">Информация о пользователе</h2>
+
+        <div class="info-item">
+            <div class="info-header">
+                <img src="{% static 'icons/city.svg' %}" class="info-icon" alt="Город">
+                <h3 class="info-title">Город</h3>
+            </div>
+            <span class="info-content">
+                {{ user.profile.city|default:"Не указан" }}
+            </span>
+        </div>
+
+        <div class="info-item">
+            <div class="info-header">
+                <img src="{% static 'icons/job.svg' %}" class="info-icon" alt="Должность">
+                <h3 class="info-title">Должность</h3>
+            </div>
+            <span class="info-content">
+                {{ user.profile.job|default:"Не указан" }}
+            </span>
+        </div>
+
+        <div class="info-item">
+            <div class="info-header">
+                <img src="{% static 'icons/education.svg' %}" class="info-icon" alt="Образование">
+                <h3 class="info-title">Образование</h3>
+            </div>
+            <span class="info-content">
+                {{ user.profile.education|default:"Не указан" }}
+            </span>
+        </div>
+
+        <div class="info-item">
+            <div class="info-header">
+                <img src="{% static 'icons/height.svg' %}" class="info-icon" alt="Рост">
+                <h3 class="info-title">Рост</h3>
+            </div>
+            <span class="info-content">
+                {{ user.profile.height|default:"Не указан" }}
+            </span>
+        </div>
+
+        <div class="info-item">
+            <div class="info-header">
+                <img src="{% static 'icons/zodiac_sign.svg' %}" class="info-icon" alt="Знак_зодиака">
+                <h3 class="info-title">Знак зодиака</h3>
+            </div>
+            <span class="info-content">
+                {{ user.profile.zodiac_sign|default:"Не указан" }}
+            </span>
+        </div>
+
+        <div class="info-item">
+            <div class="info-header">
+                <img src="{% static 'icons/religion.svg' %}" class="info-icon" alt="Религия">
+                <h3 class="info-title">Религия</h3>
+            </div>
+            <span class="info-content">
+                {{ user.profile.religion|default:"Не указан" }}
+            </span>
+        </div>
+
+        <div class="info-item">
+            <div class="info-header">
+                <img src="{% static 'icons/alcohol.svg' %}" class="info-icon" alt="Отношение_к_алкоголю">
+                <h3 class="info-title">Отношение к алкоголю</h3>
+            </div>
+            <span class="info-content">
+                {{ user.profile.alcohol|default:"Не указан" }}
+            </span>
+        </div>
+
+        <div class="info-item">
+            <div class="info-header">
+                <img src="{% static 'icons/smoking.svg' %}" class="info-icon" alt="Отношение_к_курению">
+                <h3 class="info-title">Отношение к курению</h3>
+            </div>
+            <span class="info-content">
+                {{ user.profile.smoking|default:"Не указан" }}
+            </span>
+        </div>
+
+        <div class="info-item">
+            <div class="info-header">
+                <img src="{% static 'icons/children.svg' %}" class="info-icon" alt="Отношение_к_детям">
+                <h3 class="info-title">Отношение к детям</h3>
+            </div>
+            <span class="info-content">
+                {{ user.profile.children|default:"Не указан" }}
+            </span>
+        </div>
+
+        <div class="info-item">
+            <div class="info-header">
+                <img src="{% static 'icons/language.svg' %}" class="info-icon" alt="Языки">
+                <h3 class="info-title">Языки</h3>
+            </div>
+            <span class="info-content">
+                {% for lang in profile.language.all %}
+                {{ lang.name }}{% if not forloop.last %}, {% endif %}
+                {% empty %}
+                Нет добавленных увлечений
+                {% endfor %}
+            </span>
+        </div>
+
+
+    </div>
+
+
+    <!-- ==================== 3. Дополнительная информация ==================== -->
+    <div class="stat-box animate rectangle-box skip-box dlc-block">
+        <!-- Фотографии -->
+        <div class="photos-section">
+            <h2>Фотографии ({{ profile.photos.count }})</h2>
+            <div class="photos-container">
+                {% for photo in profile.photos.all|dictsortreversed:"uploaded_at"|slice:":3" %}
+                <div class="{% if forloop.first %}large-photo{% else %}small-photo{% endif %} photo-wrapper">
+                    {% if forloop.last and profile.photos.count > 3 %}
+                    <div class="blur-container">
+                        <img src="{{ photo.image.url }}" class="photo-image" onclick="openPhotoPreview(this.src)">
+                    </div>
+                    <div class="overlay" onclick="openPhotoModal()">
+                        <span class="plus-icon">+{{ profile.photos.count|add:"-2" }}</span>
+                    </div>
+                    {% else %}
+                    <img src="{{ photo.image.url }}" class="photo-image" onclick="openPhotoPreview(this.src)">
+                    {% endif %}
+                </div>
+                {% empty %}
+                <div class="large-photo photo-wrapper"></div>
+                <div class="small-photo photo-wrapper"></div>
+                <div class="small-photo photo-wrapper"></div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Секция "Ищу" -->
+        <div class="looking-for">
+            <h2>Ищу: {{ user.profile.relationship }}</h2>
+        </div>
+
+        <!-- Увлечения -->
+        <div class="hobbies">
+            <h2>Увлечения:</h2>
+            <div class="hobbies-grid">
+                {% for interest in profile.interests.all %}
+                <div class="hobby-tile">
+                    <img src="{{ interest.image.url }}" alt="{{ interest.name }}" class="hobby-img">
+                    <span>{{ interest.name }}</span>
+                </div>
+                {% empty %}
+                <span>Добавьте увлечения</span>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== 4. Статистика ==================== -->
+    <div class="stat-box animate min-box" onclick="openReviewsModal()" style="cursor: pointer">
+        <div class="three-squares">
+            <div class="square">
+                <div>
+                    <h2>Мэтчи</h2>
+                    <p class="count">0</p>
+                </div>
+            </div>
+
+            <div class="square">
+                <div class="reviews-summary">
+                    <h2>Отзывы ({{ avg_rating }} / 5)</h2>
+                    <div class="rating-stars-big" style="display: flex; gap: 5px; justify-content: center; flex-wrap: nowrap;">
                         {% for _ in "12345" %}
-                            {% if forloop.counter <= review.rating %}
-                                <span class="star filled">★</span>
-                            {% else %}
-                                <span class="star">☆</span>
-                            {% endif %}
+                        <span class="star{% if forloop.counter <= avg_rating %} filled{% endif %}"
+                              style="display: inline-block; float: none !important;">★</span>
                         {% endfor %}
                     </div>
+                    <p class="total-reviews">{{ reviews.count }} отзывов</p>
                 </div>
-                <span class="review-date">
-                    {{ review.created_at|date:"d.m.Y H:i" }}
-                </span>
             </div>
-            <p class="review-text">{{ review.text }}</p>
         </div>
-        {% empty %}
-        <p>Пока нет отзывов</p>
+    </div>
+
+    <!-- Модальное окно для отзывов -->
+    <div id="reviewsModal" class="modal" onclick="closeReviewsModal()">
+        <div class="modal-content reviews-modal" onclick="event.stopPropagation()">
+            <span class="close" onclick="closeReviewsModal()"></span>
+            <h2 class="modal-title">Все отзывы ({{ reviews.count }})</h2>
+
+            <div class="reviews-grid">
+                {% for review in reviews %}
+                <div class="review-card-modal">
+                    <div class="review-header-modal">
+                        <img src="{{ review.author.profile.avatar.url }}"
+                             class="avatar-modal"
+                             alt="{{ review.author.full_name }}">
+                        <div class="review-author-info">
+                            <h3>{{ review.author.full_name }}</h3>
+                            <div class="rating-stars-modal">
+                                {% for _ in "12345" %}
+                                <span class="star{% if forloop.counter <= review.rating %} filled{% endif %}">★</span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <span class="review-date-modal">{{ review.created_at|date:"d.m.Y H:i" }}</span>
+                    </div>
+                    <div class="review-text-modal">
+                        {{ review.text }}
+                    </div>
+                </div>
+                {% empty %}
+                <div class="no-reviews">Пока нет отзывов</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальные окна -->
+<div id="photoModal" class="modal" onclick="closePhotoModal()">
+    <div class="modal-content modal-grid" onclick="event.stopPropagation()">
+        <span class="close" onclick="closePhotoModal()"></span>
+        {% for photo in profile.photos.all|dictsortreversed:"uploaded_at" %}
+        <div class="modal-grid-item">
+            <img src="{{ photo.image.url }}"
+                 class="gallery-photo"
+                 data-delete-url="{% url 'delete_photo' photo.uuid %}"
+                 onclick="openPhotoPreview(this.src)">
+
+
+        </div>
         {% endfor %}
     </div>
 </div>
-<div>
-            <a href="{% url 'messenger_detail' user.id %}" class="btn btn-info">Написать сообщение</a>
+
+<div id="photoPreviewModal" class="modal" onclick="closePhotoPreview()">
+    <div class="preview-wrapper">
+        <img src="" class="preview-image" onclick="event.stopPropagation()">
+        <button class="delete-photo-btn preview-delete-btn"
+                onclick="event.stopPropagation(); confirmDeletePhoto(currentPreviewPhotoUrl)">
+            <svg viewBox="0 0 24 24" class="trash-icon">
+                <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
+            </svg>
+        </button>
+    </div>
 </div>
-</body>
-</html>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/user_script.js' %}"></script>
+{% endblock %}

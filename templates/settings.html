@@ -7,24 +7,37 @@
 {% block content %}
 <div class="settings-wrapper">
     <div class="settings-sidebar">
-        <button class="settings-tab active" data-tab="account">Аккаунт</button>
-        <button class="settings-tab" data-tab="main-info">Основная информация</button>
-        <button class="settings-tab" data-tab="additional-info">Дополнительная информация</button>
+        <button class="settings-tab" data-tab="account">Безопасность</button>         <!-- изменил название -->
+        <button class="settings-tab" data-tab="main-info">Основное</button>
+        <button class="settings-tab" data-tab="additional-info">Дополнительно</button>
     </div>
 
     <div class="settings-content">
         <!-- Аккаунт -->
-        <div class="settings-block active" id="account">
-            <form class="settings-form">
-                <h1>Настройки аккаунта</h1>
+        <div class="settings-block" id="account">
+            <form class="settings-form" method="post">
+                {% csrf_token %}
+                <h1>Безопасность аккаунта</h1>
+
+                <!-- Смена пароля -->
                 <div class="form-group">
-                    <label for="email">| Электронная почта:</label>
-                    <input type="email" id="email" name="email" placeholder="example@mail.com">
+                    <label for="id_current_password">| Текущий пароль:</label>
+                    {{ password_form.current_password }}
+                    {{ password_form.current_password.errors }}
                 </div>
-                <button type="button" id="changePasswordBtn" class="save-btn">Изменить пароль</button>
                 <div class="form-group">
-                    <button type="button" class="save-btn danger">Удалить аккаунт</button>
+                    <label for="id_new_password">| Новый пароль:</label>
+                    {{ password_form.new_password }}
+                    {{ password_form.new_password.errors }}
                 </div>
+                <div class="form-group">
+                    <label for="id_confirm_password">| Подтвердите пароль:</label>
+                    {{ password_form.confirm_password }}
+                    {{ password_form.confirm_password.errors }}
+                </div>
+
+                <button type="submit" name="change_password" class="save-btn">Изменить пароль</button>
+                <!--<div class="form-group"> <button type="button" class="save-btn danger">Удалить аккаунт</button></div>-->
             </form>
         </div>
 
@@ -79,7 +92,7 @@
                 {% csrf_token %}
                 <h1>Дополнительная информация</h1>
 
-                <!-- Контейнер для сетки из 9 полей -->
+                <!-- Контейнер для сетки из 8 полей -->
                 <div class="additional-settings-grid">
                     <div class="form-group">
                         <label for="{{ extra_form.job.id_for_label }}">| Профессия:</label>
@@ -89,11 +102,6 @@
                     <div class="form-group">
                         <label for="{{ extra_form.height.id_for_label }}">| Рост (см):</label>
                         {{ extra_form.height }}
-                    </div>
-
-                    <div class="form-group">
-                        <label for="{{ extra_form.zodiac_sign.id_for_label }}">| Знак зодиака:</label>
-                        {{ extra_form.zodiac_sign }}
                     </div>
 
                     <div class="form-group">
@@ -120,10 +128,30 @@
                         <label for="{{ extra_form.children.id_for_label }}">| Дети:</label>
                         {{ extra_form.children }}
                     </div>
-
                     <div class="form-group">
                         <label>| Языки:</label>
-                        {{ extra_form.language }}
+                        <div class="custom-dropdown">
+                            <div class="dropdown-header" onclick="toggleLanguageDropdown()">
+                                <span class="selected-items">
+                                    {% if extra_form.language.value %}
+                                    {{ extra_form.language.value|join:", " }}
+                                    {% else %}
+                                    Выберите языки...
+                                    {% endif %}
+                                </span>
+                                <span class="arrow">▼</span>
+                            </div>
+                            <div class="dropdown-content" id="languageDropdown">
+                                {% for lang in extra_form.language.field.queryset %}
+                                <label class="dropdown-item">
+                                    <input type="checkbox" name="language"
+                                           value="{{ lang.id }}"
+                                           {% if lang.id in extra_form.language.value %}checked{% endif %}>
+                                    {{ lang.name }}
+                                </label>
+                                {% endfor %}
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -134,22 +162,28 @@
                     <small class="form-text text-muted">{{ form.photos.help_text }}</small>
                 </div>
 
-                <!-- Интересы в виде кнопок -->
+                <!-- Интересы -->
                 <div class="form-group">
                     <label>| Интересы:</label>
                     <div class="interests-container">
                         {% for interest in extra_form.interests.field.queryset %}
-                            {% if interest.name == "волонтерство" %}
-                                </div><div style="margin-bottom: 10px;">Социальная активность</div><div class="interests-container">
-                            {% elif interest.name == "бег" %}
-                                </div><div style="margin-bottom: 10px;">Спорт и активный отдых</div><div class="interests-container">
-                            {% elif interest.name == "изучение языков" %}
-                                </div><div style="margin-bottom: 10px;">Образование и саморазвитие</div><div class="interests-container">
-                            {% elif interest.name == "литература" %}
-                                </div><div style="margin-bottom: 10px;">Хобби и развлечения</div><div class="interests-container">
-                            {% elif interest.name == "живопись" %}
-                                </div><div style="margin-bottom: 10px;">Творчество и искусство</div><div class="interests-container">
-                            {% endif %}
+                        {% if interest.name == "волонтерство" %}
+                    </div>
+                    <h1 style="font-size: 16px;">Социальная активность</h1>
+                    <div class="interests-container">
+                        {% elif interest.name == "бег" %}
+                    </div>
+                    <h1 style="font-size: 16px;">Спорт и активный отдых</h1>
+                    <div class="interests-container">
+                        {% elif interest.name == "изучение языков" %}
+                    </div>
+                    <h1 style="font-size: 16px;">Образование и саморазвитие</h1>
+                    <div class="interests-container">
+                        {% elif interest.name == "литература" %}
+                    </div>
+                    <h1 style="font-size: 16px;">Хобби и развлечения</h1>
+                    <div class="interests-container">
+                        {% endif %}
 
                         <label class="interest-btn">
                             <input type="checkbox" name="interests" value="{{ interest.id }}"
@@ -164,79 +198,10 @@
                 <button type="submit" name="edit_extra_profile" class="save-btn">Сохранить информацию</button>
             </form>
         </div>
+
     </div>
 </div>
-
-<!-- Модальное окно смены пароля -->
-<div id="passwordModal" class="modal">
-    <div class="modal-content">
-        <span class="close"></span>
-        <h2>Изменить пароль</h2>
-        <form method="post" id="passwordForm">
-            {% csrf_token %}
-            <div class="form-group">
-                <label for="id_current_password">Текущий пароль:</label>
-                {{ password_form.current_password }}
-                {{ password_form.current_password.errors }}
-            </div>
-            <div class="form-group">
-                <label for="id_new_password">Новый пароль:</label>
-                {{ password_form.new_password }}
-                {{ password_form.new_password.errors }}
-            </div>
-            <div class="form-group">
-                <label for="id_confirm_password">Подтвердите пароль:</label>
-                {{ password_form.confirm_password }}
-                {{ password_form.confirm_password.errors }}
-            </div>
-            <button type="submit" name="change_password" class="save-btn full-width" style="max-width: 400px; margin: 20px auto 0;">Сохранить изменения</button>
-        </form>
-    </div>
-</div>
-
-<script>
-    // Управление вкладками
-    document.querySelectorAll('.settings-tab').forEach(tab => {
-        tab.addEventListener('click', function () {
-            document.querySelectorAll('.settings-tab, .settings-block').forEach(el => {
-                el.style.transition = 'none';
-                el.classList.remove('active');
-            });
-
-            setTimeout(() => {
-                this.classList.add('active');
-                const content = document.getElementById(this.dataset.tab);
-                content.style.transition = '';
-                content.classList.add('active');
-            }, 50);
-        });
-    });
-
-    // Управление модальным окном
-    const modal = document.getElementById('passwordModal');
-    const btn = document.getElementById('changePasswordBtn');
-    const span = document.querySelector('.close');
-
-    btn.onclick = () => modal.style.display = "flex";
-    span.onclick = () => modal.style.display = "none";
-    window.onclick = (e) => {
-        if (e.target == modal) modal.style.display = "none";
-    };
-
-    // Проверка паролей
-    document.getElementById('passwordForm').addEventListener('submit', function (e) {
-        const newPass = document.getElementById('id_new_password').value;
-        const confirmPass = document.getElementById('id_confirm_password').value;
-
-        if (newPass !== confirmPass) {
-            e.preventDefault();
-            alert('Пароли не совпадают!');
-        }
-    });
-
-    // Подтверждение удаления аккаунта
-    document.querySelector('.danger').addEventListener('click', () => {
-        if (!confirm('Вы уверены, что хотите удалить аккаунт? Это нельзя отменить!')) return;
-    });
-</script>
+{% block extra_js %}
+<script src="{% static 'js/settings_script.js' %}"></script>
+{% endblock %}
 {% endblock %}

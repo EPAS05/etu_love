@@ -7,10 +7,16 @@ from compatibility.models import Friendship
 from messenger.models import Message
 import shortuuid
 import logging
+import asyncio
 
 logger = logging.getLogger(__name__)
 
+async def get_ai_response(message_text, conversation_history):
+    logger.info(f"Вызов заглушки нейросети с сообщением: '{message_text}'")
+    await asyncio.sleep(2)
+    logger.info(f"Заглушка нейросети сгенерировала ответ.")
 
+    return f"Я, нейросеть, получил ваше сообщение: '{message_text}'"
 
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
@@ -34,7 +40,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
              logger.error(f"WebSocket connect: Error getting interlocutor ID: {e}. Closing.")
              await self.close()
              return
-        except User.DoesNotExist: # Catch if get_interlocutor_user returns None (handled above) or raises DoesNotExist (less likely with check)
+        except User.DoesNotExist:
              logger.warning(f"WebSocket connect: Interlocutor user {self.interlocutor_id} not found (DoesNotExist). Closing.")
              await self.close()
              return
@@ -42,19 +48,16 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
         logger.info(f"WebSocket connect: User '{self.user.email}' (ID: {self.user.id}) attempting connection with User ID: {self.interlocutor_id}")
 
-        # Check friendship - now calling the async method
         is_friend = await self.check_friendship()
-        if not is_friend:
-            logger.warning(f"WebSocket connect: User {self.user.id} and {self.interlocutor_id} are not friends. Closing connection.")
-            await self.close() # Consider a specific close code > 4000
+        is_interlocutor_ai = hasattr(self.interlocutor, 'is_ai') and self.interlocutor.is_ai
+        if not is_friend and not is_interlocutor_ai:
+            logger.warning(f"WebSocket connect: User {self.user.id} и {self.interlocutor_id} не друзья И собеседник не нейросеть. Закрытие соединения.")
+            await self.close()
             return
 
-        # --- Create Room Name ---
         try:
-            # Sorted IDs for consistent room name
             user_ids = sorted([str(self.user.id), str(self.interlocutor_id)])
             room_identifier = "-".join(user_ids)
-            # Use shortuuid based on sorted IDs
             self.room_group_name = f'chat_{shortuuid.uuid(name=room_identifier)}'
             logger.info(f"WebSocket connect: Calculated room name: {self.room_group_name}")
         except Exception as e:
@@ -62,8 +65,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
             await self.close()
             return
 
-
-        # --- Add Channel to Group ---
         try:
             await self.channel_layer.group_add(
                 self.room_group_name,
@@ -75,27 +76,23 @@ class ChatConsumer(AsyncWebsocketConsumer):
              await self.close()
              return
 
-        # --- Accept Connection ---
         await self.accept()
         logger.info(f"WebSocket connect: Connection accepted for user {self.user.id} in room {self.room_group_name}")
 
-    # --- Async Helper for getting Interlocutor User ---
     @database_sync_to_async
     def get_interlocutor_user(self, user_id):
          try:
              return User.objects.get(id=user_id)
          except User.DoesNotExist:
              logger.warning(f"get_interlocutor_user: User with ID {user_id} not found.")
-             return None # Return None instead of raising DoesNotExist here
+             return None
 
     @database_sync_to_async
     def check_friendship(self):
-        # Ensure users are set before querying
         if not hasattr(self, 'user') or not hasattr(self, 'interlocutor') or not self.user or not self.interlocutor:
             logger.error("check_friendship: User or interlocutor not available.")
             return False
         try:
-            # Use Q objects for OR condition
             return Friendship.objects.filter(
                 (Q(from_user=self.user, to_user=self.interlocutor) |
                  Q(from_user=self.interlocutor, to_user=self.user)),
@@ -109,7 +106,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
     async def disconnect(self, close_code):
         logger.info(
             f"WebSocket disconnect: User {self.user.id if hasattr(self, 'user') and self.user else 'N/A'} disconnecting from room {getattr(self, 'room_group_name', 'N/A')}. Code: {close_code}")
-        # Remove channel from group if it was added
         if hasattr(self, 'room_group_name'):
             try:
                 await self.channel_layer.group_discard(
@@ -128,13 +124,13 @@ class ChatConsumer(AsyncWebsocketConsumer):
             message_text = text_data_json.get('message')
 
             if not message_text or not message_text.strip():
-                 logger.warning(f"WebSocket receive: Empty or missing 'message' field from {self.user.id}. Ignoring.")
-                 return
+                logger.warning(f"WebSocket receive: Empty or missing 'message' field from {self.user.id}. Ignoring.")
+                return
 
             cleaned_message_text = message_text.strip()
             logger.info(f"WebSocket receive: Processed message '{cleaned_message_text}' from {self.user.id}")
 
-            message = await self.create_message(cleaned_message_text)
+            message = await self.create_message(cleaned_message_text, sender=self.user, receiver=self.interlocutor)
 
             if message:
                 message_data_for_group = {
@@ -144,40 +140,73 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     'timestamp': message.timestamp.isoformat(),
                     'sender_name': message.sender.full_name,
                 }
-
                 await self.channel_layer.group_send(
                     self.room_group_name,
                     message_data_for_group
                 )
-                logger.info(f"WebSocket receive: Message sent to group '{self.room_group_name}' by {self.user.id}.")
+                logger.info(
+                    f"WebSocket receive: Сообщение пользователя отправлено в группу '{self.room_group_name}' от {self.user.id}.")
+
+                if hasattr(self.interlocutor, 'is_ai') and self.interlocutor.is_ai:
+                    logger.info(
+                        f"WebSocket receive: Чат с нейросетью ({self.interlocutor.full_name}). Запускаем логику ответа нейросети.")
+                    try:
+                        conversation_history = []
+                        ai_response_text = await get_ai_response(cleaned_message_text, conversation_history)
+
+                        if ai_response_text:
+                            logger.info(f"WebSocket receive: Получен ответ от нейросети: '{ai_response_text}'")
+                            ai_message = await self.create_message(ai_response_text, sender=self.interlocutor, receiver=self.user)
+
+                            if ai_message:
+                                ai_message_data_for_group = {
+                                    'type': 'chat_message',
+                                    'message': ai_message.text,
+                                    'sender_id': ai_message.sender.id,  # ID пользователя-нейросети
+                                    'timestamp': ai_message.timestamp.isoformat(),
+                                    'sender_name': ai_message.sender.full_name,  # Имя пользователя-нейросети
+                                }
+                                await self.channel_layer.group_send(
+                                    self.room_group_name,
+                                    ai_message_data_for_group
+                                )
+                                logger.info(
+                                    f"WebSocket receive: Сообщение нейросети отправлено в группу '{self.room_group_name}'.")
+                            else:
+                                logger.error("WebSocket receive: Не удалось создать сообщение нейросети в БД.")
+                        else:
+                            logger.warning("WebSocket receive: Функция нейросети вернула пустой ответ.")
+
+                    except Exception as e:
+                        logger.exception(f"WebSocket receive: Ошибка при вызове или обработке ответа нейросети: {e}")
             else:
-                 logger.error(f"WebSocket receive: Failed to create DB message for {self.user.id}. Text: '{cleaned_message_text}'")
+                logger.error(
+                    f"WebSocket receive: Не удалось создать сообщение пользователя в БД для {self.user.id}. Текст: '{cleaned_message_text}'")
 
 
         except json.JSONDecodeError:
-             logger.error(f"WebSocket receive: Invalid JSON from {self.user.id}: '{text_data}'")
+            logger.error(f"WebSocket receive: Получен невалидный JSON от {self.user.id}: '{text_data}'")
         except Exception as e:
-             logger.exception(f"WebSocket receive: Unexpected error processing message from {self.user.id} in room {self.room_group_name}. Data: '{text_data}'. Error: {e}")
+            logger.exception(
+                f"WebSocket receive: Неожиданная ошибка при обработке сообщения от {self.user.id}. Данные: '{text_data}'. Ошибка: {e}")
 
-
-    # --- Async Helper for saving Message to DB ---
     @database_sync_to_async
-    def create_message(self, text):
-        # Ensure sender and receiver are available
-        if not hasattr(self, 'user') or not hasattr(self, 'interlocutor') or not self.user or not self.interlocutor:
-            logger.error("create_message: User or interlocutor not set.")
+    def create_message(self, text, sender, receiver):
+        if not sender or not receiver:
+            logger.error("create_message: Не предоставлены объекты отправителя или получателя.")
             return None
         try:
-            # Save the message object
             msg = Message.objects.create(
-                sender=self.user,
-                receiver=self.interlocutor,
+                sender=sender,
+                receiver=receiver,
                 text=text
             )
-            logger.info(f"create_message: Saved message id {msg.id} from {self.user.id} to {self.interlocutor.id}. Text: '{text}'")
+            logger.info(
+                f"create_message: Сохранено сообщение id {msg.id} от {sender.id} до {receiver.id}. Текст: '{text}'")
             return msg
         except Exception as e:
-            logger.exception(f"create_message: Error saving message from {self.user.id} to {self.interlocutor.id}. Text: '{text}'. Error: {e}")
+            logger.exception(
+                f"create_message: Ошибка при сохранении сообщения от {sender.id} до {receiver.id}. Текст: '{text}'. Ошибка: {e}")
             return None
 
     async def chat_message(self, event):

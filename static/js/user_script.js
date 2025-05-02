@@ -1,8 +1,4 @@
-﻿// =======================================================
-// Функции для работы с темой оформления и иконкой смены темы
-// =======================================================
-
-function applySavedTheme() {
+﻿function applySavedTheme() {
     const savedTheme = localStorage.getItem('theme');
     if (savedTheme) {
         document.body.setAttribute('data-theme', savedTheme);
@@ -25,12 +21,6 @@ function toggleTheme() {
     updateThemeIcon(newTheme);
 }
 
-// =======================================================
-// Функции для работы с аватаром и модальными окнами
-// =======================================================
-
-
-
 function openUserInfoModal() {
     document.getElementById('infoModal').style.display = 'flex';
 }
@@ -38,25 +28,14 @@ function openUserInfoModal() {
 function closeUserInfoModal() {
     document.getElementById('infoModal').style.display = 'none';
 }
-
-/**
- * Открывает модальное окно для фотографий (галерея).
- */
 function openPhotoModal() {
     document.getElementById('photoModal').style.display = 'block';
 }
 
-/**
- * Закрывает модальное окно для фотографий (галерея).
- */
 function closePhotoModal() {
     document.getElementById('photoModal').style.display = 'none';
 }
 
-/**
- * Открывает модальное окно для предпросмотра выбранной фотографии.
- * @param {string} src - URL изображения
- */
 function openPhotoPreview(src) {
     const previewModal = document.getElementById('photoPreviewModal');
     const previewImg = previewModal.querySelector('img');
@@ -64,16 +43,10 @@ function openPhotoPreview(src) {
     previewModal.style.display = 'flex';
 }
 
-/**
- * Закрывает модальное окно предпросмотра фотографии.
- */
 function closePhotoPreview() {
     document.getElementById('photoPreviewModal').style.display = 'none';
 }
 
-// =======================================================
-// Инициализация и установка обработчиков событий после загрузки DOM
-// =======================================================
 document.addEventListener('DOMContentLoaded', () => {
     applySavedTheme();
 
@@ -92,4 +65,36 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Обработчик закрытия окна по клику вне блока с фото (галерея) уже реализован через inline onclick в разметке
+});
+
+let currentPreviewPhotoUrl = null;
+
+function confirmDeletePhoto(url) {
+    if (confirm('Вы уверены, что хотите удалить эту фотографию?')) {
+        window.location.href = url;
+    }
+}
+
+function openPhotoPreview(src) {
+    const previewModal = document.getElementById('photoPreviewModal');
+    const previewImg = previewModal.querySelector('img');
+    const photoElement = Array.from(document.querySelectorAll('.gallery-photo'))
+        .find(img => img.src === src);
+
+    if (photoElement) {
+        currentPreviewPhotoUrl = photoElement.dataset.deleteUrl;
+        previewImg.src = src;
+        previewModal.style.display = 'flex';
+    }
+}
+function openReviewsModal() {
+    document.getElementById('reviewsModal').style.display = 'flex';
+}
+
+function closeReviewsModal() {
+    document.getElementById('reviewsModal').style.display = 'none';
+}
+
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeReviewsModal();
 });

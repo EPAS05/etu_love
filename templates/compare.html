@@ -1,42 +1,62 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
-<form method="post">
-    {% csrf_token %}
-    {{ formset.management_form }}
+<!-- compare.html -->
+{% extends 'base.html' %}
+{% load static %}
 
-    {% for data in comparisons_data %}
-    <div class="comparison-item">
-        <h3>{{ data.criterion_a.name }} vs {{ data.criterion_b.name }}</h3>
-        {{ data.form.id }}
-        <div class="radio-group">
-            {% for radio in data.form.score %}
-            <label class="radio-label">
-                {{ radio.tag }}
-                <span class="radio-text">
-                    {% if radio.choice_value == 1 %}
-                        {{ data.criterion_a.name }} значительно важнее
-                    {% elif radio.choice_value == 2 %}
-                        {{ data.criterion_a.name }} немного важнее
-                    {% elif radio.choice_value == 3 %}
-                        Одинаково важны
-                    {% elif radio.choice_value == 4 %}
-                        {{ data.criterion_b.name }} немного важнее
-                    {% elif radio.choice_value == 5 %}
-                        {{ data.criterion_b.name }} значительно важнее
-                    {% endif %}
-                </span>
-            </label>
+{% block title %}Сравнение критериев{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/compare_style.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="main-window">
+    <form method="post">
+        {% csrf_token %}
+        {{ formset.management_form }}
+
+        {% if comparisons_data %}
+        <h1>Что вам важнее</h1>
+        <div class="comparison-grid">
+            {% for data in comparisons_data %}
+            <div class="comparison-item">
+		<h3>
+  		{{ data.criterion_a.name }}
+  		<span style="display: inline-block; width: 20px; opacity: 0">-</span>
+  		vs
+  		<span style="display: inline-block; width: 20px; opacity: 0">-</span>
+  		{{ data.criterion_b.name }}
+		</h3>
+                {{ data.form.id }}
+                <div class="radio-group">
+                    {% for radio in data.form.score %}
+                    <label class="radio-label">
+                        {{ radio.tag }}
+                        <span class="radio-text">
+                            {% if radio.choice_value == 1 %}
+                                {{ data.criterion_a.name }} значительно важнее
+                            {% elif radio.choice_value == 2 %}
+                                {{ data.criterion_a.name }} немного важнее
+                            {% elif radio.choice_value == 3 %}
+                                Одинаково важны
+                            {% elif radio.choice_value == 4 %}
+                                {{ data.criterion_b.name }} немного важнее
+                            {% elif radio.choice_value == 5 %}
+                                {{ data.criterion_b.name }} значительно важнее
+                            {% endif %}
+                        </span>
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
             {% endfor %}
         </div>
-    </div>
-    {% endfor %}
+        {% else %}
+        <div class="empty-state">
+            Нет доступных сравнений для оценки
+        </div>
+        {% endif %}
 
-    <button type="submit" class="btn-submit">Сохранить и продолжить</button>
-</form>
-</body>
-</html>
+        <button type="submit" class="btn-submit">Сохранить и продолжить</button>
+    </form>
+</div>
+{% endblock %}
