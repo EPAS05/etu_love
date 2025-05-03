@@ -2,7 +2,7 @@ from django.contrib.auth.decorators import login_required
 from authuser.models import User, Profile, Gender
 from authuser.views import settings_page
 from compatibility.forms import SelectedCriterionForm, ComparisonSettingsForm, PairsCriteriaForm, ReviewForm
-from compatibility.models import SelectedCriterion, ComparisonSettings, PairsCriteria, Friendship, Review, CriterionWeight
+from compatibility.models import SelectedCriterion, ComparisonSettings, PairsCriteria, Friendship, Review, CriterionWeight, Block
 from compatibility.services.ahp import AHPCalc
 from compatibility.services.matcher import MatcherCalc
 from django.contrib import messages
@@ -11,6 +11,7 @@ from django.db.models import Q, Avg
 from django.forms import modelformset_factory
 from django.shortcuts import render, redirect, get_object_or_404
 from itertools import combinations
+from django.http import HttpResponseForbidden
 
 @login_required
 def search_settings(request):
@@ -181,7 +182,9 @@ def user_profile(request, user_id):
         'can_review': can_review,
         'friendship_status': friendship_status,
         'friendship_id': friendship_id,
-        'is_request_sent': is_request_sent
+        'is_request_sent': is_request_sent,
+        'is_blocked': Block.objects.filter(blocker=user, blocked=user_prof).exists(),
+        'is_blocked_by_user': Block.objects.filter(blocker=user_prof, blocked=user).exists(),
     }
     return render(request, 'user_profile.html', context)
 
@@ -216,6 +219,11 @@ def send_friend_request(request, user_id):
     if request.user == to_user:
         messages.error(request, "Нельзя отправить заявку самому себе")
         return redirect('user_profile', user_id=user_id)
+
+    if Block.objects.filter(blocker=request.user, blocked=to_user).exists():
+        return HttpResponseForbidden("Вы заблокировали этого пользователя")
+    if Block.objects.filter(blocker=to_user, blocked=request.user).exists():
+        return HttpResponseForbidden("Пользователь заблокировал вас")
 
     if Friendship.objects.filter(from_user=request.user, to_user=to_user).exists():
         messages.warning(request, "Заявка уже отправлена")
@@ -274,3 +282,21 @@ def remove_friend(request, friend_id):
     friendship.delete()
     messages.success(request, "Пользователь удален из друзей")
     return redirect('friends')
+
+
+@login_required
+def block_user(request, user_id):
+    user_to_block = get_object_or_404(User, pk=user_id)
+
+    if Block.objects.filter(blocker=request.user, blocked=user_to_block).exists():
+        return redirect('user_profile', user_id=user_id)
+
+    Block.objects.create(blocker=request.user, blocked=user_to_block)
+    return redirect('user_profile', user_id=user_id)
+
+
+@login_required
+def unblock_user(request, user_id):
+    user_to_unblock = get_object_or_404(User, pk=user_id)
+    Block.objects.filter(blocker=request.user, blocked=user_to_unblock).delete()
+    return redirect('user_profile', user_id=user_id)

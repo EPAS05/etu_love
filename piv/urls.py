@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.urls import path
 from authuser.views import index_page, profile, logout_view, settings_page, delete_photo, profile_settings
-from compatibility.views import search_settings, compare_criteria, user_profile, friends, send_friend_request, cancel_friend_request, accept_friend_request, decline_friend_request, remove_friend
+from compatibility.views import search_settings, compare_criteria, user_profile, friends, send_friend_request, cancel_friend_request, accept_friend_request, decline_friend_request, remove_friend, block_user, unblock_user
 from messenger.views import messenger_detail, messenger
 from django.conf import settings
 from django.conf.urls.static import static
@@ -26,6 +26,8 @@ urlpatterns = [
     path('profile/delete_photo/<str:photo_uuid>/', delete_photo, name='delete_photo'),
     path('messenger/', messenger, name='messenger'),
     path('messenger/<int:user_id>/', messenger_detail, name='messenger_detail'),
+    path('block/<int:user_id>/', block_user, name='block_user'),
+    path('unblock/<int:user_id>/', unblock_user, name='unblock_user'),
 ]
 
 if settings.DEBUG:

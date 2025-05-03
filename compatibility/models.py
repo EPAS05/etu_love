@@ -105,3 +105,15 @@ class Review(models.Model):
 
     def __str__(self):
         return f"{self.author} для {self.receiver} ({self.rating})"
+
+class Block(models.Model):
+    blocker = models.ForeignKey(User, on_delete=models.CASCADE, related_name='blocking_users')
+    blocked = models.ForeignKey(User, on_delete=models.CASCADE, related_name='blocked_users')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('blocker', 'blocked')
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.blocker} блокирует {self.blocked}"
