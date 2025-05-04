@@ -225,8 +225,20 @@ def send_friend_request(request, user_id):
     if Block.objects.filter(blocker=to_user, blocked=request.user).exists():
         return HttpResponseForbidden("Пользователь заблокировал вас")
 
-    if Friendship.objects.filter(from_user=request.user, to_user=to_user).exists():
-        messages.warning(request, "Заявка уже отправлена")
+    existing = Friendship.objects.filter(
+        (Q(from_user=request.user, to_user=to_user) |
+         Q(from_user=to_user, to_user=request.user))
+    ).first()
+
+    if existing:
+        if existing.status == 'accepted':
+            messages.warning(request, "Уже друзья")
+        elif existing.from_user == request.user:
+            messages.warning(request, "Заявка уже отправлена")
+        else:
+            existing.status = 'accepted'
+            existing.save()
+            messages.success(request, "Заявка автоматически принята")
         return redirect('user_profile', user_id=user_id)
 
     Friendship.objects.create(from_user=request.user, to_user=to_user)
@@ -248,6 +260,14 @@ def accept_friend_request(request, friendship_id):
 
     if friendship.to_user != request.user:
         raise PermissionDenied("Вы не можете принять эту заявку")
+
+    reverse_friendship = Friendship.objects.filter(
+        from_user=request.user,
+        to_user=friendship.from_user
+    ).first()
+
+    if reverse_friendship:
+        reverse_friendship.delete()
 
     friendship.status = 'accepted'
     friendship.save()

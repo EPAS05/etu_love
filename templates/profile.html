@@ -251,7 +251,9 @@
                              class="avatar-modal"
                              alt="{{ review.author.full_name }}">
                         <div class="review-author-info">
-                            <h3>{{ review.author.full_name }}</h3>
+                            <h3>
+                                <a href="{% url 'user_profile' review.author.id %}">{{ review.author.full_name }}</a>
+                            </h3>
                             <div class="rating-stars-modal">
                                 {% for _ in "12345" %}
                                 <span class="star{% if forloop.counter <= review.rating %} filled{% endif %}">★</span>
