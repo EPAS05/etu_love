@@ -61,8 +61,8 @@ def search_settings(request):
             )
         show_values_form = True
         AHPCalc.find_weights(user)
-        criterion_weight = CriterionWeight.objects.filter(user=user).first()
-        cr = round(criterion_weight.consistency_ratio, 2) if criterion_weight else 0
+        criterion_weight = CriterionWeight.objects.filter(user=user).order_by('criterion__id')
+        cr = round(criterion_weight[0].consistency_ratio, 2) if criterion_weight else 0
         raw_matches = []
         if user.profile.relationship.name == 'Партнера':
             opposite_gender = 'Мужской' if user.profile.gender.name == 'Женский' else 'Женский'
@@ -89,6 +89,7 @@ def search_settings(request):
         'user': user,
         'matches': matches,
         'cr': cr,
+        'criterion_weights': criterion_weight,
     })
 
 @login_required

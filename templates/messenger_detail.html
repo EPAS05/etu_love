@@ -2,25 +2,32 @@
 {% load static %}
 
 {% block content %}
+
+<link rel="stylesheet" href="{% static 'css/messenger_style.css' %}">
+
 <div class="chat-container"
      id="chat-container"
      data-interlocutor-id="{{ interlocutor.id }}"
-     data-user-id="{{ user.id }}" {# <-- Используем переменную user из контекста #}
-     data-ws-url-base="{{ ws_url_base }}/"> {# <-- Используем вычисленный URL и добавляем конечный слэш #}
+     data-user-id="{{ user.id }}" 
+     data-ws-url-base="{{ ws_url_base }}/"> 
     <h2>Диалог с
         <a href="{% url 'user_profile' interlocutor.id %}" class="profile-link">
             {{ interlocutor.full_name }}
         </a>
+        <div class="avatar-wrapper">
+                <img class="avatar"
+                     src="{{ interlocutor.profile.avatar.url }}"
+                     alt="{{ dialog.interlocutor.full_name }}"
+                     onclick="openPhotoPreview(this.src)">
+        </div>
     </h2>
 
     <div class="messages" id="messages">
-        {# ... сообщения загружаются здесь ... #}
-        {% comment %} Сообщения должны быть выведены здесь из переменной messages контекста, если вы их передаете {% endcomment %}
          {% for message in messages %}
              <div class="message {% if message.sender == user %}sent{% else %}received{% endif %}">
-                 <div>{{message.sender.full_name}} </div>
+                 <div style="color: #5B5F84; font-size: 18px;">{{message.sender.full_name}} </div>
                  <div class="message-content">{{ message.text }}</div>
-                 <div class="message-time">{{ message.timestamp|date:"H:i" }}</div> {# Пример форматирования времени #}
+                 <div class="message-time">{{ message.timestamp|date:"H:i" }}</div>
              </div>
          {% empty %}
              <p>Начните диалог!</p>

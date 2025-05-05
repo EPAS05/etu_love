@@ -1,31 +1,89 @@
 {% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/friends_style.css' %}">
+{% endblock %}
 
 {% block content %}
+
 <div class="friends-container">
+    <div>
+        <h1 style="margin-bottom: 10px;">Друзья</h1>
+    </div>
+
+    <!-- Список друзей -->
+    <div class="friends-section">
+        <h2>Ваши друзья</h2>
+        <div class="friends-list">
+            {% for friendship in friends %}
+            <div class="friend-card">
+                {% if friendship.from_user != request.user %}
+                <img src="{{ friendship.from_user.profile.avatar.url }}" class="avatar-medium" alt="Аватар друга">
+                <div class="friend-info">
+                    <a href="{% url 'user_profile' friendship.from_user.id %}" class="user-link">
+                        {{ friendship.from_user.full_name }}
+                    </a>
+                    <div class="friend-actions">
+                        <a href="{% url 'messenger_detail' friendship.from_user.id %}"
+                           class="btn btn-primary message-btn">
+                            Написать
+                        </a>
+                        <form action="{% url 'remove_friend' friendship.from_user.id %}" method="post">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger">Удалить</button>
+                        </form>
+                    </div>
+                </div>
+                {% else %}
+                <img src="{{ friendship.to_user.profile.avatar.url }}" class="avatar-medium" alt="Аватар друга">
+                <div class="friend-info">
+                    <a href="{% url 'user_profile' friendship.to_user.id %}" class="user-link">
+                        {{ friendship.to_user.full_name }}
+                    </a>
+                    <div class="friend-actions">
+                        <a href="{% url 'messenger_detail' friendship.to_user.id %}"
+                           class="btn btn-primary message-btn">
+                            Написать
+                        </a>
+                        <form action="{% url 'remove_friend' friendship.to_user.id %}" method="post">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger">Удалить</button>
+                        </form>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            {% empty %}
+            <p class="no-friends">У вас пока нет друзей</p>
+            {% endfor %}
+        </div>
+    </div>
+
     <!-- Входящие заявки -->
     <div class="requests-section">
         <h2>Входящие заявки</h2>
         {% for request in incoming_requests %}
         <div class="request-card">
-            <img src="{{ request.from_user.profile.avatar.url }}" class="avatar-small">
+            <img src="{{ request.from_user.profile.avatar.url }}" class="avatar-small" alt="Аватар">
             <div class="request-info">
-                <a href="{% url 'user_profile' request.from_user.id %}">
+                <a href="{% url 'user_profile' request.from_user.id %}" class="user-link">
                     {{ request.from_user.full_name }}
                 </a>
                 <div class="request-actions">
                     <form action="{% url 'accept_friend_request' request.id %}" method="post">
                         {% csrf_token %}
-                        <button type="submit" class="btn-success">Принять</button>
+                        <button type="submit" class="btn btn-success">Принять</button>
                     </form>
                     <form action="{% url 'decline_friend_request' request.id %}" method="post">
                         {% csrf_token %}
-                        <button type="submit" class="btn-danger">Отклонить</button>
+                        <button type="submit" class="btn btn-danger">Отклонить</button>
                     </form>
                 </div>
             </div>
         </div>
         {% empty %}
-        <p>Нет входящих заявок</p>
+        <p class="no-requests">Нет входящих заявок</p>
         {% endfor %}
     </div>
 
@@ -34,57 +92,22 @@
         <h2>Исходящие заявки</h2>
         {% for request in outgoing_requests %}
         <div class="request-card">
-            <img src="{{ request.to_user.profile.avatar.url }}" class="avatar-small">
+            <img src="{{ request.to_user.profile.avatar.url }}" class="avatar-small" alt="Аватар">
             <div class="request-info">
-                <a href="{% url 'user_profile' request.to_user.id %}">
+                <a href="{% url 'user_profile' request.to_user.id %}" class="user-link">
                     {{ request.to_user.full_name }}
                 </a>
                 <form action="{% url 'cancel_friend_request' request.id %}" method="post">
                     {% csrf_token %}
-                    <button type="submit" class="btn-warning">Отменить</button>
+                    <button type="submit" class="btn btn-warning">Отменить</button>
                 </form>
             </div>
         </div>
         {% empty %}
-        <p>Нет исходящих заявок</p>
+        <p class="no-requests">Нет исходящих заявок</p>
         {% endfor %}
     </div>
 
-    <!-- Список друзей -->
-    <div class="friends-section">
-        <h2>Ваши друзья</h2>
-        <div class="friends-list">
-            {% for friendship in friends %}
-                <div class="friend-card">
-                    {% if friendship.from_user != request.user %}
-                        <img src="{{ friendship.from_user.profile.avatar.url }}" class="avatar-medium">
-                        <div class="friend-info">
-                            <a href="{% url 'user_profile' friendship.from_user.id %}">
-                                {{ friendship.from_user.full_name }}
-                            </a>
-                            <form action="{% url 'remove_friend' friendship.from_user.id %}" method="post">
-                                {% csrf_token %}
-                                <button type="submit" class="btn-danger">Удалить</button>
-                            </form>
-                        </div>
-                    {% else %}
-                        <img src="{{ friendship.to_user.profile.avatar.url }}" class="avatar-medium">
-                        <div class="friend-info">
-                            <a href="{% url 'user_profile' friendship.to_user.id %}">
-                                {{ friendship.to_user.full_name }}
-                            </a>
-                            <form action="{% url 'remove_friend' friendship.to_user.id %}" method="post">
-                                {% csrf_token %}
-                                <button type="submit" class="btn-danger">Удалить</button>
-                            </form>
-                        </div>
-                    {% endif %}
-                </div>
-            {% empty %}
-                <p>У вас пока нет друзей</p>
-            {% endfor %}
-        </div>
-    </div>
-</div>
 
+</div>
 {% endblock %}

@@ -1,0 +1,297 @@
+/* ==================== 1. ������� ����� ==================== */
+.friends-container {
+    padding: 30px;
+    width: 100%;
+    max-width: 100%;
+    margin:  auto;
+}
+
+h2 {
+    color: #5B5F84;
+    font-size: 1.8rem;
+    margin-bottom: 25px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #F0F0F0;
+}
+
+/* ==================== 2. ������ ������ ==================== */
+.requests-section {
+    background: white;
+    border-radius: 12px;
+    padding: 30px;
+    margin-bottom: 40px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.request-card {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 20px;
+    margin-bottom: 25px;
+    background: #f8f8f8;
+    border-radius: 8px;
+    transition: transform 0.2s ease;
+}
+
+    .request-card:hover {
+        transform: translateY(-3px);
+    }
+
+/* ==================== 3. ������� ==================== */
+.avatar-small {
+    width: 150px;
+    height: 150px;
+    border-radius: 10%;
+    object-fit: cover;
+    border: 2px solid #5B5F84;
+}
+
+.avatar-medium {
+    width: 150px;
+    height: 150px;
+    border-radius: 10%;
+    object-fit: cover;
+    border: 3px solid #5B5F84;
+}
+
+/* ==================== 4. �������������� ����� ==================== */
+.request-info {
+    flex: 1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+    .request-info a {
+        color: #333;
+        font-size: 1.1rem;
+        text-decoration: none;
+        transition: color 0.2s;
+    }
+
+        .request-info a:hover {
+            color: #5B5F84;
+        }
+
+.request-actions {
+    display: flex;
+    gap: 10px;
+}
+
+/* ==================== 5. ����� ������ ==================== */
+.btn {
+    padding: 8px 20px;
+    border: none;
+    border-radius: 6px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-success {
+    background: #4CAF50;
+    color: white;
+}
+
+.btn-danger {
+    background: #ff4b4b;
+    color: white;
+}
+
+.btn-warning {
+    background: #ffa726;
+    color: white;
+}
+
+.btn:hover {
+    opacity: 0.9;
+    transform: translateY(-2px);
+}
+
+/* ==================== 6. ������ ������ ==================== */
+.friends-section {
+    background: white;
+    border-radius: 12px;
+    padding: 30px;
+    margin-bottom: 40px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.friend-card {
+    display: flex;
+    align-items: center;
+    gap: 25px;
+    padding: 20px;
+    margin-bottom: 25px;
+    background: #f8f8f8;
+    border-radius: 8px;
+    transition: transform 0.2s ease;
+}
+
+    .friend-card:hover {
+        transform: translateY(-3px);
+    }
+
+.friend-info {
+    flex: 1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* ==================== 7. Ҹ���� ���� ==================== */
+body[data-theme="dark"] .requests-section,
+body[data-theme="dark"] .friends-section {
+    background: #1E1E1E;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+
+body[data-theme="dark"] h2 {
+    color: #7B7F94;
+    border-color: #333;
+}
+
+body[data-theme="dark"] .request-card,
+body[data-theme="dark"] .friend-card {
+    background: #2a2a2a;
+}
+
+body[data-theme="dark"] .request-info a,
+body[data-theme="dark"] .friend-info a {
+    color: #FFFFFF;
+}
+
+    body[data-theme="dark"] .request-info a:hover,
+    body[data-theme="dark"] .friend-info a:hover {
+        color: #7B7F94;
+    }
+
+body[data-theme="dark"] .avatar-small,
+body[data-theme="dark"] .avatar-medium {
+    border-color: #7B7F94;
+}
+
+/* ==================== 8. ������������ ==================== */
+@media (max-width: 768px) {
+    .friends-container {
+        padding: 30px;
+        width: 95%;
+    }
+
+    .requests-section,
+    .friends-section {
+        padding: 25px;
+        margin-bottom: 30px;
+    }
+
+    .request-card,
+    .friend-card {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+        padding: 15px;
+    }
+
+    .request-actions {
+        width: 100%;
+        justify-content: flex-end;
+    }
+
+    .btn {
+        width: 100%;
+        padding: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .friends-container {
+        padding: 20px;
+    }
+
+    h2 {
+        font-size: 1.5rem;
+    }
+
+    .avatar-medium {
+        width: 55px;
+        height: 55px;
+    }
+}
+
+body[data-theme="dark"] {
+    background: #1a1a1a;
+    color: #e0e0e0;
+}
+
+    body[data-theme="dark"] .friends-container {
+        background: #1a1a1a;
+    }
+
+    body[data-theme="dark"] .no-requests,
+    body[data-theme="dark"] .no-friends {
+        color: #7B7F94;
+    }
+
+    body[data-theme="dark"] .request-card,
+    body[data-theme="dark"] .friend-card {
+        background: #2a2a2a;
+        border: 1px solid #333;
+    }
+
+    body[data-theme="dark"] .btn-success {
+        background: #4CAF50;
+    }
+
+    body[data-theme="dark"] .btn-danger {
+        background: #c62828;
+    }
+
+    body[data-theme="dark"] .btn-warning {
+        background: #ef6c00;
+    }
+
+    body[data-theme="dark"] .friends-list,
+    body[data-theme="dark"] .requests-section {
+        background: #1E1E1E !important;
+    }
+
+.btn-primary {
+    background: #4CAF50;
+    color: white;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 20px;
+    height: 31px;
+    margin-left: 10px;
+    font-weight: 350;
+    font-size: 14px;
+}
+
+.friend-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+
+@media (max-width: 768px) {
+    .friend-actions {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .btn-primary {
+        margin-left: 0;
+        width: 100%;
+    }
+}
+
+a {
+    text-decoration: none;
+}
+
+    a:hover {
+        text-decoration: none;
+    }

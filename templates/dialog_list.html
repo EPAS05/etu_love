@@ -1,18 +1,38 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block content %}
-<h1>Ваши диалоги</h1>
+<link rel="stylesheet" href="{% static 'css/dialog_list_style.css' %}">
+
+
 <ul class="dialog-list">
+
+    <div>
+        <h1 style="margin-top: -35px; margin-bottom: 10px; ">Ваши диалоги</h1>
+    </div>
+
     {% for dialog in dialogs %}
     <li class="dialog-item">
         <a href="{% url 'messenger_detail' dialog.interlocutor.id %}">
-            {{ dialog.interlocutor.full_name }}
-            <span class="last-message">{{ dialog.last_message.text|truncatechars:30 }}</span>
-            <span class="timestamp">{{ dialog.last_message.timestamp|date:"d.m.Y H:i" }}</span>
+            <div class="avatar-wrapper">
+                <img class="avatar"
+                     src="{{ dialog.interlocutor.profile.avatar.url }}"
+                     alt="{{ dialog.interlocutor.full_name }}"
+                     onclick="openPhotoPreview(this.src)">
+            </div>
+            <div class="dialog-content">
+                <div class="dialog-header">
+                    <span class="dialog-name">{{ dialog.interlocutor.full_name }}</span>
+                    <span class="timestamp">{{ dialog.last_message.timestamp|date:"d.m.Y H:i" }}</span>
+                </div>
+                <p class="last-message">
+                    {{ dialog.last_message.text|truncatechars:50 }}
+                </p>
+            </div>
         </a>
     </li>
     {% empty %}
-    <li>У вас пока нет диалогов</li>
+    <li class="empty-state">У вас пока нет диалогов</li>
     {% endfor %}
 </ul>
 {% endblock %}

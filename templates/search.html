@@ -1,96 +1,191 @@
 {% extends 'base.html' %}
 
+{% load static %}
+
 {% block content %}
 
-{{ user.full_name }}
-{% for field in user.profile.interests.all %}
-{{ field }}
-{% endfor %}
+<link rel="stylesheet" href="{% static 'css/search_style.css' %}">
 
-<div class="search-settings">
-    <!-- Форма выбора критериев -->
-    <div class="criteria-section">
-        <h2>Выберите важные критерии</h2>
-        <form method="post">
-            {% csrf_token %}
-            {{ criteria_form.as_p }}
-            <button type="submit" name="criteria_submit" class="btn btn-primary">
-                Сохранить критерии
-            </button>
-        </form>
+<!-- Кнопки управления настройками -->
+<div class="settings-toolbar">
+    <button class="btn btn-primary open-criteria-btn">
+        <a style="text-align: center;">Критерии поиска</a>
+    </button>
+    <button style="height: 40px;" class="btn btn-success open-values-btn">
+        <a href="{% url 'compare_criteria' %}">Настроить поиск</a>
+    </button>
+</div>
+
+<!-- Модальное окно критериев -->
+<div class="modal-overlay" id="criteriaModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Приоритет критериев</h2>
+            <span class="modal-close">&times;</span>
+        </div>
+        <div class="modal-body">
+            <form method="post">
+                {% csrf_token %}
+                <div class="priority-grid">
+                    {{ criteria_form.as_p }}
+                </div>
+                <button type="submit" name="criteria_submit" class="btn btn-primary">
+                    Сохранить приоритеты
+                </button>
+            </form>
+        </div>
     </div>
+</div>
 
-    <!-- Форма настроек значений -->
-    {% if values_form %}
-    <div class="values-section">
-        <h2>Уточните параметры поиска</h2>
+<!-- Аккордеон для детальных настроек -->
+<div class="settings-accordion" id="valuesAccordion">
+    <div class="accordion-header">
+        <h3>Детальные параметры поиска</h3>
+        <span class="accordion-toggle"></span>
+    </div>
+    <div class="accordion-content">
         <form method="post">
             {% csrf_token %}
-            <div class="form-grid">
+            <div class="advanced-grid">
                 {% for field in values_form %}
-                    {% if field.name != 'interests' %}
-                    <div class="form-field">
-                        {{ field.label_tag }}<br>
-                        {{ field }}
-                        {% if field.errors %}
-                            <div class="error">{{ field.errors }}</div>
-                        {% endif %}
-                    </div>
+                {% if field.name != 'interests' %}
+                <div class="form-group">
+                    {{ field.label_tag }}
+                    {{ field }}
+                    {% if field.help_text %}
+                    <div class="form-hint">{{ field.help_text }}</div>
                     {% endif %}
+                </div>
+                {% endif %}
                 {% endfor %}
-            </div>
 
-            <!-- Блок с интересами -->
-            {% if values_form.interests %}
-            <div class="interest-section">
-                <h3>Выберите интересующие:</h3>
-                <div class="interest-grid">
-                    {% for checkbox in values_form.interests %}
-                    <div class="interest-card">
-                        <label class="interest-label">
+                {% if values_form.interests %}
+                <div class="interest-section">
+                    <h4>Целевые интересы</h4>
+                    <div class="tag-cloud">
+                        {% for checkbox in values_form.interests %}
+                        <label class="tag-item">
                             {{ checkbox.tag }}
-                            <span class="interest-name">{{ checkbox.choice_label }}</span>
+                            <span class="tag-label">{{ checkbox.choice_label }}</span>
                         </label>
+                        {% endfor %}
                     </div>
-                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <div class="form-actions">
+                    <button type="submit" name="values_submit" class="btn btn-success">
+                        Применить фильтры
+                    </button>
                 </div>
             </div>
-            {% endif %}
+        </form>
+    </div>
+</div>
 
-            <button type="submit" name="values_submit" class="btn btn-success">
-                Сохранить настройки
+<!-- Основной контент -->
+<div class="results-container">
+    <div class="compatibility-header">
+        <h3>Точность подбора: <span class="cr-value">{{ cr }}%</span></h3>
+        <form method="post" class="refresh-form">
+            {% csrf_token %}
+            <button type="submit" name="refresh_matches" class="btn btn-refresh">
+                <i class="icon-sync"></i> Обновить
             </button>
         </form>
     </div>
-    {% endif %}
-</div>
 
-<h3>Индекс согласованности: {{ cr }}</h3>
-
-<div class="matches-container">
-    <form method="post" class="refresh-form">
-        {% csrf_token %}
-        <button type="submit" name="refresh_matches" class="btn btn-refresh">
-            Обновить список
-        </button>
-    </form>
-  {% for match in matches %}
-  {{ i }}
-  <div class="match-card">
-    <a href="{% url 'user_profile' match.profile.user.id %}" class="profile-link">
-    <img src="{{ match.profile.avatar.url }}" class="avatar">
-    <div class="info">
-      <h3>{{ match.profile.user.full_name }}, {{ match.profile.age }}</h3>
-      <p>{{ match.profile.city.name }}</p>
-      <div class="compatibility">
-        <div class="score-bar" style="width: {{ match.score }}%"></div>
-        <span>{{ match.score }}%</span>
-      </div>
+    {% for match in matches %}
+    <div class="match-card">
+        <a href="{% url 'user_profile' match.profile.user.id %}" class="profile-link">
+            <div class="avatar-wrapper">
+                <img src="{{ match.profile.avatar.url }}" class="avatar">
+                <div class="compatibility-badge">{{ match.score }}%</div>
+            </div>
+            <div class="profile-info">
+                <h3>{{ match.profile.user.full_name }}, {{ match.profile.age }}</h3>
+                <div class="meta-info">
+                    <span class="location"><i class="icon-pin"></i>{{ match.profile.city.name }}</span>
+                    <div class="interests">
+                        {% for interest in match.profile.interests.all|slice:":4" %}
+                        <span class="interest-tag">{{ interest.name }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </a>
     </div>
-  </div>
-  {% empty %}
-  <p>Нет подходящих совпадений. Попробуйте изменить критерии поиска.</p>
-  {% endfor %}
+    {% empty %}
+    <div class="empty-state">
+        <i class="icon-search"></i>
+        <p>Совпадений не найдено. Измените параметры поиска.</p>
+    </div>
+    {% endfor %}
 </div>
+
+{% if criterion_weights %}
+<div class="criteria-weights">
+    <h3>Веса критериев:</h3>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Критерий</th>
+                <th>Вес</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for weight in criterion_weights %}
+            <tr>
+                <td>{{ weight.criterion.name }}</td>
+                <td>{{ weight.weight|floatformat:3 }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <p>Коэффициент согласованности (CR): {{ cr }}</p>
+</div>
+{% endif %}
+
+<script>
+    // Управление модальными окнами
+    const manageModal = (modalId, btnClass) => {
+        const modal = document.getElementById(modalId);
+        const openBtns = document.querySelectorAll(`.${btnClass}`);
+        const closeBtn = modal.querySelector('.modal-close');
+
+        openBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.body.style.overflow = 'hidden';
+                modal.style.display = 'flex';
+            });
+        });
+
+        const closeModal = () => {
+            document.body.style.overflow = '';
+            modal.style.display = 'none';
+        };
+
+        closeBtn.addEventListener('click', closeModal);
+        window.addEventListener('click', (e) => e.target === modal && closeModal());
+    };
+
+    // Аккордеон - выпад
+    const accordion = document.getElementById('valuesAccordion');
+    const accordionHeader = accordion.querySelector('.accordion-header');
+    const accordionContent = accordion.querySelector('.accordion-content');
+
+    accordionHeader.addEventListener('click', () => {
+        const isOpen = accordion.classList.toggle('active');
+        accordionContent.style.maxHeight = isOpen
+            ? accordionContent.scrollHeight + "px"
+            : "0";
+    });
+
+    // Инициализация
+    document.addEventListener('DOMContentLoaded', () => {
+        manageModal('criteriaModal', 'open-criteria-btn');
+        accordionContent.style.maxHeight = "0";
+    });
+</script>
 
 {% endblock %}

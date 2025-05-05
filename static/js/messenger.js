@@ -1,5 +1,3 @@
-// messenger.js
-
 document.addEventListener('DOMContentLoaded', (event) => {
     const chatContainer = document.getElementById('chat-container');
     if (!chatContainer) {

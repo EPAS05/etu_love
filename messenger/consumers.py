@@ -9,16 +9,87 @@ import shortuuid
 import logging
 import asyncio
 
+from transformers import T5Tokenizer, T5ForConditionalGeneration
+import torch
+
 logger = logging.getLogger(__name__)
 
-async def get_ai_response(message_text, conversation_history):
-    logger.info(f"Вызов заглушки нейросети с сообщением: '{message_text}'")
-    await asyncio.sleep(2)
-    logger.info(f"Заглушка нейросети сгенерировала ответ.")
+LOCAL_MODEL_PATH = "ai_models/my_model"
 
-    return f"Я, нейросеть, получил ваше сообщение: '{message_text}'"
+ai_tokenizer = None
+ai_model = None
+AI_DEVICE = "cpu"
+
+try:
+    logger.info(f"Попытка загрузки T5 модели и токенизатора из {LOCAL_MODEL_PATH}...")
+
+    ai_tokenizer = T5Tokenizer.from_pretrained(LOCAL_MODEL_PATH)
+    logger.info("T5 Токенизатор AI загружен.")
+
+    AI_DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
+    logger.info(f"Используется устройство для модели AI: {AI_DEVICE}")
+
+    ai_model = T5ForConditionalGeneration.from_pretrained(LOCAL_MODEL_PATH)
+    ai_model.to(AI_DEVICE)
+    ai_model.eval()
+    logger.info("T5 Модель AI загружена и перемещена на устройство.")
+
+except Exception as e:
+    logger.error(f"ФАТАЛЬНАЯ ОШИБКА: Не удалось загрузить T5 модель или токенизатор из {LOCAL_MODEL_PATH}: {e}")
+    ai_tokenizer = None
+    ai_model = None
+    AI_DEVICE = "cpu"
+
+
+async def get_ai_response(message_text, conversation_history, tokenizer, model, device):
+    if model is None or tokenizer is None:
+        logger.error("T5 Модель или токенизатор AI не загружены. Невозможно сгенерировать ответ.")
+        return "Извините, модель нейросети недоступна."
+
+    logger.info(f"Генерация ответа AI для: '{message_text}' на устройстве {device}")
+
+    try:
+        input_parts = []
+        for msg in conversation_history:
+            role_prefix = "user: " if msg.sender.is_ai else "bot: "
+            input_parts.append(f"{role_prefix}{msg.text}")
+
+        input_parts.append(f"user: {message_text}")
+        input_text = " ".join(input_parts)
+
+        inputs = tokenizer(input_text, return_tensors='pt').to(device)
+
+        with torch.no_grad():
+             hypotheses = model.generate(
+                 **inputs,
+                 temperature=0.9,
+                 do_sample=True,
+                 top_p=0.7,
+                 num_return_sequences=1,
+                 repetition_penalty=2.5,
+                 max_new_tokens=32,
+                 pad_token_id=tokenizer.eos_token_id,
+                 eos_token_id=tokenizer.eos_token_id,
+             )
+
+        ai_response_text = tokenizer.decode(hypotheses[0], skip_special_tokens=True)
+
+        logger.info(f"Сгенерирован сырой ответ AI: '{ai_response_text}'")
+        if ai_response_text.startswith(input_text):
+             ai_response_text = ai_response_text[len(input_text):].strip()
+
+
+        return ai_response_text.strip()
+
+    except Exception as e:
+        logger.exception(f"Ошибка при инференсе модели AI: {e}")
+        return "Произошла ошибка при генерации ответа нейросети."
 
 class ChatConsumer(AsyncWebsocketConsumer):
+    ai_tokenizer = ai_tokenizer
+    ai_model = ai_model
+    ai_device = AI_DEVICE
+
     async def connect(self):
         self.user = self.scope["user"]
         logger.info(f"WebSocket connect: Attempt. User: {self.user}, Authenticated: {self.user.is_authenticated}")
@@ -103,6 +174,30 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 f"check_friendship: Error checking friendship for users {self.user.id}, {self.interlocutor_id}: {e}")
             return False
 
+    @database_sync_to_async
+    def get_conversation_history(self, user1, user2, limit=10):
+        if not user1 or not user2:
+            logger.error("get_conversation_history: Не предоставлены объекты пользователей.")
+            return []
+
+        try:
+            messages = Message.objects.filter(
+                (Q(sender=user1, receiver=user2) |
+                 Q(sender=user2, receiver=user1))
+            ).select_related('sender')
+            recent_messages_desc = messages.order_by('-timestamp')[:limit]
+            conversation_history_list = list(recent_messages_desc[::-1])
+
+            logger.info(
+                f"get_conversation_history: Получено {len(conversation_history_list)} последних сообщений между {user1.id} и {user2.id} с предварительной загрузкой отправителя.")
+
+            return conversation_history_list
+
+        except Exception as e:
+            logger.exception(
+                f"get_conversation_history: Ошибка при получении сообщений между {user1.id} и {user2.id}: {e}")
+            return []
+
     async def disconnect(self, close_code):
         logger.info(
             f"WebSocket disconnect: User {self.user.id if hasattr(self, 'user') and self.user else 'N/A'} disconnecting from room {getattr(self, 'room_group_name', 'N/A')}. Code: {close_code}")
@@ -151,8 +246,15 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     logger.info(
                         f"WebSocket receive: Чат с нейросетью ({self.interlocutor.full_name}). Запускаем логику ответа нейросети.")
                     try:
-                        conversation_history = []
-                        ai_response_text = await get_ai_response(cleaned_message_text, conversation_history)
+                        conversation_history = await self.get_conversation_history(self.user, self.interlocutor, limit=10)
+
+                        ai_response_text = await get_ai_response(
+                            cleaned_message_text,
+                            conversation_history,
+                            self.ai_tokenizer,
+                            self.ai_model,
+                            self.ai_device
+                        )
 
                         if ai_response_text:
                             logger.info(f"WebSocket receive: Получен ответ от нейросети: '{ai_response_text}'")
