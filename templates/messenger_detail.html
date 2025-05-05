@@ -10,16 +10,20 @@
      data-interlocutor-id="{{ interlocutor.id }}"
      data-user-id="{{ user.id }}" 
      data-ws-url-base="{{ ws_url_base }}/"> 
-    <h2>Диалог с
+    <h2>
+
+        <div class="avatar-wrapper">
+            <img class="avatar"
+                 src="{{ interlocutor.profile.avatar.url }}"
+                 alt="{{ dialog.interlocutor.full_name }}"
+                 onclick="openPhotoPreview(this.src)">
+        </div>
+
+        Диалог с
         <a href="{% url 'user_profile' interlocutor.id %}" class="profile-link">
             {{ interlocutor.full_name }}
         </a>
-        <div class="avatar-wrapper">
-                <img class="avatar"
-                     src="{{ interlocutor.profile.avatar.url }}"
-                     alt="{{ dialog.interlocutor.full_name }}"
-                     onclick="openPhotoPreview(this.src)">
-        </div>
+
     </h2>
 
     <div class="messages" id="messages">

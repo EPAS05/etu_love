@@ -5,6 +5,11 @@
 <link rel="stylesheet" href="{% static 'css/settings_style.css' %}">
 {% endblock %}
 {% block content %}
+
+<div>
+    <h1>Настройки</h1>
+</div>
+
 <div class="settings-wrapper">
     <div class="settings-sidebar">
         <button class="settings-tab" data-tab="account">Безопасность</button>         <!-- изменил название -->
@@ -95,7 +100,7 @@
                 <!-- Контейнер для сетки из 8 полей -->
                 <div class="additional-settings-grid">
                     <div class="form-group">
-                        <label for="{{ extra_form.job.id_for_label }}">| Профессия:</label>
+                        <label for="{{ extra_form.job.id_for_label }}">| Должность:</label>
                         {{ extra_form.job }}
                     </div>
 
@@ -132,7 +137,7 @@
                         <label>| Языки:</label>
                         <div class="custom-dropdown">
                             <div class="dropdown-header" onclick="toggleLanguageDropdown()">
-                                <span class="selected-items">
+                                <span style="max-width: 100%;" class="selected-items">
                                     {% if extra_form.language.value %}
                                     {{ extra_form.language.value|join:", " }}
                                     {% else %}

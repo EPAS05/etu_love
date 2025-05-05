@@ -27,6 +27,7 @@ def search_settings(request):
     values_form = None
     show_values_form = False
     matches = []
+    criterion_weight = None
     cr = 0
 
     if request.method == 'POST':

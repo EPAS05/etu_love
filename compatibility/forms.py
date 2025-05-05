@@ -8,6 +8,9 @@ class SelectedCriterionForm(forms.ModelForm):
         widgets = {
             'criteria': forms.CheckboxSelectMultiple,
         }
+        labels = {
+            'criteria': 'Критерии',
+        }
 
     def clean_criteria(self):
         criteria = self.cleaned_data.get('criteria')
