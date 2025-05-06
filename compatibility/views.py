@@ -65,14 +65,26 @@ def search_settings(request):
         criterion_weight = CriterionWeight.objects.filter(user=user).order_by('criterion__id')
         cr = round(criterion_weight[0].consistency_ratio, 2) if criterion_weight else 0
         raw_matches = []
+
+        blocked_pairs = Block.objects.filter(
+            Q(blocker=user) | Q(blocked=user)
+        ).values_list('blocker_id', 'blocked_id')
+
+        excluded_users = set()
+        for blocker_id, blocked_id in blocked_pairs:
+            excluded_users.add(blocker_id)
+            excluded_users.add(blocked_id)
+
+        excluded_users.add(user.id)
+
         if user.profile.relationship.name == 'Партнера':
             opposite_gender = 'Мужской' if user.profile.gender.name == 'Женский' else 'Женский'
             gender_obj = Gender.objects.get(name=opposite_gender)
 
-            profiles = Profile.objects.filter(gender=gender_obj.id, relationship=user.profile.relationship).exclude(user=user)
+            profiles = Profile.objects.filter(gender=gender_obj.id, relationship=user.profile.relationship).exclude(user_id__in=excluded_users)
 
         elif user.profile.relationship.name == 'Общение':
-            profiles = Profile.objects.filter(relationship=user.profile.relationship).exclude(user=user)
+            profiles = Profile.objects.filter(relationship=user.profile.relationship).exclude(user_id__in=excluded_users)
 
         for profile in profiles:
             score = MatcherCalc.find_compability(user, profile)
