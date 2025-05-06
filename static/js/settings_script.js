@@ -1,4 +1,20 @@
 document.addEventListener('DOMContentLoaded', function () {
+    
+    // Проверка первого посещения
+    if (!localStorage.getItem('settingsFirstVisit')) {
+        const notification = document.getElementById('firstVisitNotification');
+        if (notification) {
+            notification.classList.add('show');
+            localStorage.setItem('settingsFirstVisit', 'true');
+        }
+    }
+
+    // Обработчик закрытия уведомления
+    document.querySelectorAll('.close-notification').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.getElementById('firstVisitNotification').remove();
+        });
+    });
     // Функция синхронной активации вкладки
     function activateTab(tabId, initialLoad = false) {
         // Блокировка рендера перед изменениями
