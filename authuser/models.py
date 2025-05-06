@@ -5,7 +5,7 @@ from django.dispatch import receiver
 import os
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 
-class CustomUserManager(BaseUserManager):
+class CustomUserManager(BaseUserManager): #Помошник создания пользователя
     def create_user(self, email, full_name, password=None, **extra_fields):
         if not email:
             raise ValueError("Email обязателен")
@@ -35,7 +35,7 @@ class CustomUserManager(BaseUserManager):
         extra_fields.setdefault('is_superuser', True)
         return self.create_user(email, full_name, password, **extra_fields)
 
-class User(AbstractBaseUser, PermissionsMixin):
+class User(AbstractBaseUser, PermissionsMixin): #Сам юзер
     full_name = models.CharField(max_length=100)
     email = models.EmailField(unique=True)
     is_active = models.BooleanField(default=True)
@@ -50,7 +50,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         return self.email
 
-class Profile(models.Model):
+class Profile(models.Model): #Профиль с основной инфой, отображающейся в профиле
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     avatar = models.ImageField(upload_to='avatars/', blank=True, null=True, default='avatars/default_avatar.jpg')
     gender = models.ForeignKey('Gender', on_delete=models.SET_NULL, blank=True, null=True)
@@ -106,10 +106,10 @@ def get_zodiac_sign(birth_date):
     else:
         return None
 
-def profile_photo_upload_to(instance, filename):
+def profile_photo_upload_to(instance, filename): #Для пути сохранения
     return os.path.join("profile_photos", str(instance.profile.user.id), filename)
 
-class ProfilePhoto(models.Model):
+class ProfilePhoto(models.Model): #Фото пользователя со страницы
     profile = models.ForeignKey('Profile', on_delete=models.CASCADE, related_name="photos")
     image = models.ImageField(upload_to=profile_photo_upload_to)
     uploaded_at = models.DateTimeField(auto_now_add=True)
@@ -118,6 +118,7 @@ class ProfilePhoto(models.Model):
     def __str__(self):
         return f"Photo {self.id} for {self.profile.user.get_username()}"
 
+#Классы, заполняемые админом
 class Interest(models.Model):
     name = models.CharField(max_length=20, unique=True)
     image = models.ImageField(upload_to='interests/', blank=True, null=True)
@@ -185,7 +186,7 @@ class Relationship(models.Model):
     def __str__(self):
         return self.name
 
-@receiver(post_save, sender=User)
+@receiver(post_save, sender=User)  #Создание профиля при регистрации
 def create_user_profile(sender, instance, created, **kwargs):
     if created:
         Profile.objects.create(user=instance)

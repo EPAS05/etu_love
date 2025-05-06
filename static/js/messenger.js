@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
     }
 
     const interlocutorId = chatContainer.dataset.interlocutorId;
-    const currentUserId = parseInt(chatContainer.dataset.userId, 10); // Убедитесь, что это число
+    const currentUserId = parseInt(chatContainer.dataset.userId, 10);
     const wsUrlBase = chatContainer.dataset.wsUrlBase;
 
     if (!interlocutorId || isNaN(currentUserId) || !wsUrlBase) {
@@ -41,8 +41,8 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
         const messageDiv = document.createElement('div');
         // Сравниваем data.sender_id (число) с currentUserId (число) для определения класса
-        const senderId = parseInt(data.sender_id, 10); // Убедитесь, что sender_id тоже число для сравнения
-        messageDiv.className = `message ${senderId === currentUserId ? 'sent' : 'received'}`; // <-- Эта логика у вас уже была, она правильная
+        const senderId = parseInt(data.sender_id, 10);
+        messageDiv.className = `message ${senderId === currentUserId ? 'sent' : 'received'}`;
 
         // Форматируем время
         let messageTime = '';
@@ -58,11 +58,9 @@ document.addEventListener('DOMContentLoaded', (event) => {
              messageTime = 'Error';
         }
 
-        // <--- ПОЛУЧАЕМ ИМЯ ОТПРАВИТЕЛЯ ИЗ ДАННЫХ --->
         const senderName = data.sender_name || 'Неизвестный отправитель'; // Получаем имя отправителя
         const messageContent = data.message || 'Пустое сообщение'; // Получаем текст сообщения
 
-        // <--- ФОРМИРУЕМ HTML СООБЩЕНИЯ С ИМЕНЕМ ОТПРАВИТЕЛЯ И ДРУГОЙ СТРУКТУРОЙ --->
         messageDiv.innerHTML = `
             <div class="message-header"><strong>${senderName}:</strong></div>
             <div class="message-content">${messageContent}</div>
@@ -75,7 +73,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
         messagesDiv.scrollTop = messagesDiv.scrollHeight;
     };
 
-    // ... (остальные обработчики onclose, onerror и логика отправки сообщения) ...
+    //остальные обработчики onclose, onerror и логика отправки сообщения
 
     const messageForm = document.querySelector('#message-form');
     const messageInput = document.querySelector('#message-input');

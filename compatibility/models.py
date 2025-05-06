@@ -1,7 +1,7 @@
 from authuser.models import User, Profile, Zodiac, Religion, City, Children, Alcohol, Language, Smoking, Interest, Education
 from django.db import models
 
-class Criterion(models.Model):
+class Criterion(models.Model):  #Критерий
     name = models.CharField(max_length=30)
     code = models.SlugField(unique=True)
 
@@ -9,13 +9,13 @@ class Criterion(models.Model):
         return self.name
 
 
-class SelectedCriterion(models.Model):
+class SelectedCriterion(models.Model): #Выбранные критерии пользователя
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     criteria = models.ManyToManyField(Criterion)
     created_at = models.DateTimeField(auto_now_add=True)
 
 
-class ComparisonSettings(models.Model):
+class ComparisonSettings(models.Model): #Уточняющие настройки пользователя
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='comparison_settings')
 
     age_min = models.PositiveIntegerField("Мин. возраст", null=True, blank=True)
@@ -38,7 +38,7 @@ class ComparisonSettings(models.Model):
     def __str__(self):
         return f"Для {self.user.email}"
 
-class PairsCriteria(models.Model):
+class PairsCriteria(models.Model): #Пары критериев
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     criterion_a = models.ForeignKey(Criterion, related_name='comparisons_a', on_delete=models.CASCADE)
     criterion_b = models.ForeignKey(Criterion, related_name='comparisons_b', on_delete=models.CASCADE)
@@ -60,7 +60,7 @@ class PairsCriteria(models.Model):
     def __str__(self):
         return f"{self.criterion_a} vs {self.criterion_b} ({self.score})"
 
-class CriterionWeight(models.Model):
+class CriterionWeight(models.Model): #Веса критериев
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     criterion = models.ForeignKey(Criterion, on_delete=models.CASCADE)
     weight = models.FloatField()
@@ -69,7 +69,7 @@ class CriterionWeight(models.Model):
     class Meta:
         unique_together = ['user', 'criterion']
 
-class Friendship(models.Model):
+class Friendship(models.Model):  #Мэтчи или же друзья
     STATUS_CHOICES = (
         ('pending', 'Ожидает подтверждения'),
         ('accepted', 'Принято'),
@@ -84,7 +84,7 @@ class Friendship(models.Model):
     class Meta:
         unique_together = ('from_user', 'to_user')
 
-class Review(models.Model):
+class Review(models.Model): #Отзывы
     RATING_CHOICES = [
         (1, '1 - Ужасно'),
         (2, '2 - Плохо'),
@@ -106,7 +106,7 @@ class Review(models.Model):
     def __str__(self):
         return f"{self.author} для {self.receiver} ({self.rating})"
 
-class Block(models.Model):
+class Block(models.Model): #ЧС
     blocker = models.ForeignKey(User, on_delete=models.CASCADE, related_name='blocking_users')
     blocked = models.ForeignKey(User, on_delete=models.CASCADE, related_name='blocked_users')
     created_at = models.DateTimeField(auto_now_add=True)

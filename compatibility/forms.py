@@ -1,7 +1,7 @@
 from compatibility.models import ComparisonSettings, SelectedCriterion, PairsCriteria, Review
 from django import forms
 
-class SelectedCriterionForm(forms.ModelForm):
+class SelectedCriterionForm(forms.ModelForm):  #Выбор критериев
     class Meta:
         model = SelectedCriterion
         fields = ['criteria']
@@ -19,7 +19,7 @@ class SelectedCriterionForm(forms.ModelForm):
         return criteria
 
 
-class ComparisonSettingsForm(forms.ModelForm):
+class ComparisonSettingsForm(forms.ModelForm): #Уточнение значений выбранных критериев
     class Meta:
         model = ComparisonSettings
         exclude = ['user']
@@ -28,7 +28,7 @@ class ComparisonSettingsForm(forms.ModelForm):
         user = kwargs.pop('user', None)
         super().__init__(*args, **kwargs)
 
-        if user and hasattr(user, 'profile') and user.profile:
+        if user and hasattr(user, 'profile') and user.profile:  #По стандарту значения пользователя
             profile = user.profile
             self.fields['city'].initial = profile.city
             self.fields['zodiac_sign'].initial = profile.zodiac_sign
@@ -41,20 +41,20 @@ class ComparisonSettingsForm(forms.ModelForm):
             self.fields['age_max'].initial = profile.age
 
             interests_qs = profile.interests.all()
-            self.fields['interests'].widget = forms.CheckboxSelectMultiple(
+            self.fields['interests'].widget = forms.CheckboxSelectMultiple( #Пул выбора - интересы пользователя
                 attrs={'class': 'interest-checkbox'}
             )
             self.fields['interests'].queryset = interests_qs
             self.fields['interests'].initial = interests_qs
 
-            self.fields['languages'].widget = forms.CheckboxSelectMultiple(
+            self.fields['languages'].widget = forms.CheckboxSelectMultiple( #Выбор из языков пользователя
                 attrs={'class': 'languages-checkbox'}
             )
             self.fields['languages'].queryset = profile.language.all()
             self.fields['languages'].initial = profile.language.all()
 
         selected_criterion = SelectedCriterion.objects.filter(user=user).first()
-        selected_codes = selected_criterion.criteria.values_list('code', flat=True) if selected_criterion else []
+        selected_codes = selected_criterion.criteria.values_list('code', flat=True) if selected_criterion else [] #Получение кодов выбранных
 
         field_map = {
             'city': ['city'],
@@ -69,19 +69,19 @@ class ComparisonSettingsForm(forms.ModelForm):
             'interests' : ['interests']
         }
 
-        for code, fields in field_map.items():
+        for code, fields in field_map.items(): #Удаляем невыбранные
             if code not in selected_codes:
                 for field in fields:
                     if field in self.fields:
                         del self.fields[field]
 
-class PairsCriteriaForm(forms.ModelForm):
+class PairsCriteriaForm(forms.ModelForm): #Парные сравнения
     class Meta:
         model = PairsCriteria
         fields = ['score']
         widgets = {'score': forms.RadioSelect(attrs={'class': 'score-radio'})}
 
-class ReviewForm(forms.ModelForm):
+class ReviewForm(forms.ModelForm): #Отзыв
     class Meta:
         model = Review
         fields = ['rating', 'text']

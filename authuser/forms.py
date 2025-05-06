@@ -5,11 +5,11 @@ from django.core.validators import FileExtensionValidator
 from datetime import date
 import shortuuid
 
-class MultipleFileInput(forms.ClearableFileInput):
+class MultipleFileInput(forms.ClearableFileInput):   #Кастомная форма с возможностью очистки
     allow_multiple_selected = True
 
 
-class MultipleFileField(forms.FileField):
+class MultipleFileField(forms.FileField):   #Кастомная форма для файлов
     def __init__(self, *args, **kwargs):
         kwargs.setdefault("widget", MultipleFileInput())
         super().__init__(*args, **kwargs)
@@ -24,7 +24,7 @@ class MultipleFileField(forms.FileField):
             cleaned_data.append(cleaned)
         return cleaned_data
 
-class RegistrationForm(forms.Form):
+class RegistrationForm(forms.Form):  #Форма регистрации
     full_name = forms.CharField(label='Полное имя')
     email = forms.EmailField()
     password = forms.CharField(widget=forms.PasswordInput)
@@ -43,7 +43,7 @@ class RegistrationForm(forms.Form):
         empty_label=None
     )
 
-    def clean_birth_date(self):
+    def clean_birth_date(self): #Пользователи младше 16 и старше 120 не могут
         bd = self.cleaned_data.get('birth_date')
         if bd:
             today = date.today()
@@ -54,7 +54,7 @@ class RegistrationForm(forms.Form):
                 forms.ValidationError("Это точно ваша дата рождения?")
         return bd
 
-    def clean(self):
+    def clean(self): #Проверка пароля и емейл
         data = super().clean()
         if data.get('password') != data.get('confirm_password'):
             raise forms.ValidationError("Пароли не совпадают")
@@ -64,12 +64,12 @@ class RegistrationForm(forms.Form):
 
         return data
 
-class LoginForm(forms.Form):
+class LoginForm(forms.Form): #Форма входа
     email = forms.EmailField()
     password = forms.CharField(widget=forms.PasswordInput)
 
 
-class ChangePasswordForm(forms.Form):
+class ChangePasswordForm(forms.Form): #Смены пароля
     current_password = forms.CharField(
         label="Текущий пароль",
         widget=forms.PasswordInput(attrs={'placeholder': 'Текущий пароль'})
@@ -83,7 +83,7 @@ class ChangePasswordForm(forms.Form):
         widget=forms.PasswordInput(attrs={'placeholder': 'Повторите пароль'})
     )
 
-    def clean(self):
+    def clean(self): #Проверка пароля
         cleaned_data = super().clean()
         new_password = cleaned_data.get('new_password')
         confirm_password = cleaned_data.get('confirm_password')
@@ -93,7 +93,7 @@ class ChangePasswordForm(forms.Form):
 
         return cleaned_data
 
-class EditMainProfileForm(forms.ModelForm):
+class EditMainProfileForm(forms.ModelForm): #Основные настройки (важная инфа)
     full_name = forms.CharField(
         max_length=100,
         label="Полное имя",
@@ -112,7 +112,7 @@ class EditMainProfileForm(forms.ModelForm):
             'relationship': forms.Select(attrs={'class': 'form-select'}),
         }
 
-    def _validate_image(self, image):
+    def _validate_image(self, image):  #Фото в определенном формате до 5мб
         if image:
             if image.size > 5 * 1024 * 1024:
                 raise forms.ValidationError("Максимальный размер файла - 5 МБ")
@@ -132,13 +132,13 @@ class EditMainProfileForm(forms.ModelForm):
             self.fields['city'].empty_label = "Не указано"
             self.fields['gender'].empty_label = "Не указано"
 
-    def clean_full_name(self):
+    def clean_full_name(self): #Имя больше 3 букв
         full_name = self.cleaned_data.get('full_name')
         if len(full_name) < 3:
             raise forms.ValidationError("Полное имя должно содержать не менее 3 символов")
         return full_name
 
-    def save(self, user, commit=True):
+    def save(self, user, commit=True): #Если аватара нет, стандартный ставим
         user.full_name = self.cleaned_data.get('full_name')
         user.save()
         profile = super().save(commit=False)
@@ -150,7 +150,7 @@ class EditMainProfileForm(forms.ModelForm):
             profile.save()
         return profile
 
-class EditExtraProfileForm(forms.ModelForm):
+class EditExtraProfileForm(forms.ModelForm): #Другая инфа
     interests = forms.ModelMultipleChoiceField(
         queryset=Interest.objects.all(),
         widget=forms.CheckboxSelectMultiple,
@@ -196,24 +196,13 @@ class EditExtraProfileForm(forms.ModelForm):
         for field in ['smoking', 'alcohol', 'religion', 'education', 'children']:
             self.fields[field].empty_label = "Не указано"
 
-    def _validate_image(self, image):
-        if image:
-            if image.size > 5 * 1024 * 1024:
-                raise forms.ValidationError("Максимальный размер файла - 5 МБ")
-            if not image.name.lower().endswith(('.png', '.jpg', '.jpeg', '.webp')):
-                raise forms.ValidationError("Допустимые форматы: PNG, JPG, JPEG, WEBP")
-        return image
-
-    def clean_avatar(self):
-        return self._validate_image(self.cleaned_data.get('avatar'))
-
     def clean_job(self):
         job = self.cleaned_data.get('job')
         if job and len(job) > 20:
             raise forms.ValidationError("Максимальная длина - 20 символов")
         return job
 
-    def clean_photos(self):
+    def clean_photos(self): #до 5мб
         photos = self.files.getlist('photos')
         max_size = 5 * 1024 * 1024  # 5MB
 
@@ -231,131 +220,9 @@ class EditExtraProfileForm(forms.ModelForm):
         return selected_interests
 
 
-    def save(self, commit=True):
+    def save(self, commit=True): #Фоткам присваиваем уникальный номер
         instance = super().save(commit=commit)
         for photo in self.cleaned_data.get('photos', []):
             uid = shortuuid.uuid()
             ProfilePhoto.objects.create(profile=instance, image=photo, uuid=uid)
         return instance
-
-
-class BigProfileForm(forms.ModelForm):
-    full_name = forms.CharField(
-        max_length=100,
-        label="Полное имя",
-        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Иванов Иван Иванович'})
-    )
-
-    interests = forms.ModelMultipleChoiceField(
-        queryset=Interest.objects.all(),
-        widget=forms.CheckboxSelectMultiple,
-        required=False,
-        help_text="Максимум можно выбрать 5 интересов"
-    )
-
-    language = forms.ModelMultipleChoiceField(
-        queryset=Language.objects.all(),
-        widget=forms.CheckboxSelectMultiple,
-        required=False
-    )
-
-    photos = MultipleFileField(
-        required=False,
-        label="Добавить фотографии",
-        help_text="Можно выбрать несколько файлов",
-        validators=[FileExtensionValidator(allowed_extensions=['jpg', 'jpeg', 'png', 'webp'])]
-    )
-
-    class Meta:
-        model = Profile
-        fields = ['avatar', 'gender', 'birth_date', 'city',
-            'bio', 'relationship', 'job', 'height',
-            'smoking', 'alcohol', 'religion',
-            'education', 'children', 'interests',
-            'language',
-                  ]
-        widgets = {
-            'birth_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
-            'bio': forms.Textarea(attrs={'rows': 3, 'class': 'form-control', 'maxlength': 200}),
-            'city': forms.Select(attrs={'class': 'form-select'}),
-            'gender': forms.Select(attrs={'class': 'form-select'}),
-            'avatar': forms.ClearableFileInput(attrs={'class': 'form-control'}),
-            'relationship': forms.Select(attrs={'class': 'form-select'}),
-            'height': forms.NumberInput(attrs={'min': 100, 'max': 250}),
-            'job': forms.TextInput(),
-            'smoking': forms.Select(),
-            'alcohol': forms.Select(),
-            'religion': forms.Select(),
-            'education': forms.Select(),
-            'children': forms.Select(),
-        }
-
-    def __init__(self, *args, **kwargs):
-        user = kwargs.pop('user', None)
-        super().__init__(*args, **kwargs)
-
-        if user:
-            self.fields['full_name'].initial = user.full_name
-
-        for field in ['smoking', 'alcohol', 'religion', 'education', 'children', 'gender', 'city']:
-            self.fields[field].empty_label = "Не указано"
-
-    def clean_job(self):
-        job = self.cleaned_data.get('job')
-        if job and len(job) > 20:
-            raise forms.ValidationError("Максимальная длина - 20 символов")
-        return job
-
-    def _validate_image(self, image):
-        if image:
-            if image.size > 5 * 1024 * 1024:
-                raise forms.ValidationError("Максимальный размер файла - 5 МБ")
-            if not image.name.lower().endswith(('.png', '.jpg', '.jpeg', '.webp')):
-                raise forms.ValidationError("Допустимые форматы: PNG, JPG, JPEG, WEBP")
-        return image
-
-    def clean_avatar(self):
-        return self._validate_image(self.cleaned_data.get('avatar'))
-
-    def clean_photos(self):
-        photos = self.files.getlist('photos')
-        max_size = 5 * 1024 * 1024  # 5MB
-
-        for photo in photos:
-            if photo.size > max_size:
-                raise forms.ValidationError(
-                    f"Файл {photo.name} слишком большой (максимум 5 МБ)"
-                )
-        return photos
-
-    def clean_interests(self):
-        selected_interests = self.cleaned_data.get('interests')
-        if len(selected_interests) > 5:
-            raise forms.ValidationError("Нельзя выбрать больше 5 интересов")
-        return selected_interests
-
-    def clean_full_name(self):
-        full_name = self.cleaned_data.get('full_name')
-        if len(full_name) < 3:
-            raise forms.ValidationError("Полное имя должно содержать не менее 3 символов")
-        return full_name
-
-    def save(self, user, commit=True):
-        user.full_name = self.cleaned_data.get('full_name')
-        user.save()
-
-        profile = super().save(commit=False)
-
-        if not self.cleaned_data.get('avatar'):
-            profile.avatar = 'avatars/default_avatar.jpg'  # Проверьте правильность пути!
-
-        if commit:
-            profile.save()
-            self.save_m2m()
-
-        for photo in self.cleaned_data.get('photos', []):
-            uid = shortuuid.uuid()
-            ProfilePhoto.objects.create(profile=profile, image=photo, uuid=uid)
-
-        return profile
-

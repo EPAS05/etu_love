@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.urls import path
-from authuser.views import index_page, profile, logout_view, settings_page, delete_photo, profile_settings
+from authuser.views import index_page, profile, logout_view, settings_page, delete_photo
 from compatibility.views import search_settings, compare_criteria, user_profile, friends, send_friend_request, cancel_friend_request, accept_friend_request, decline_friend_request, remove_friend, block_user, unblock_user
 from messenger.views import messenger_detail, messenger
 from django.conf import settings
@@ -13,7 +13,6 @@ urlpatterns = [
     path('profile/', profile, name='profile'),
     path('logout/', logout_view, name='logout_view'),
     path('settings/', settings_page, name='settings_page'),
-    path('prosettings', profile_settings, name='prosettings'),
     path('search/', search_settings, name='search_settings'),
     path('compare/', compare_criteria, name='compare_criteria'),
     path('profile/<int:user_id>/',user_profile, name='user_profile'),
