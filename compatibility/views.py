@@ -174,6 +174,7 @@ def user_profile(request, user_id): #Чужой профиль
 
     friendship_status = friendship.status if friendship else 'none' #Проверка дружбы
     is_request_sent = friendship.from_user == user if friendship else False #Отправлен ли запрос
+    friendship_id = friendship.id if friendship else None #айди дружбы. Нужно в хтмл
 
     if request.method == 'POST' and 'submit_review' in request.POST: #Оставляем отзыв
         form = ReviewForm(request.POST)
@@ -195,6 +196,7 @@ def user_profile(request, user_id): #Чужой профиль
         'can_review': can_review,
         'friendship_status': friendship_status,
         'is_request_sent': is_request_sent,
+        'friendship_id': friendship_id,
         'is_blocked': Block.objects.filter(blocker=user, blocked=user_prof).exists(),
         'is_blocked_by_user': Block.objects.filter(blocker=user_prof, blocked=user).exists(),
     }

@@ -45,10 +45,31 @@
 
                     </div>
                     {% endif %}
-                    <form action="{% url 'send_friend_request' user.id %}" method="post">
-                        {% csrf_token %}
-                        <button style="margin-top: 15px; " class="btn btn-primary">Добавить в друзья</button>
-                    </form>
+                    {% if user.id != request.user.id %}
+                        {% if friendship_status == 'accepted' %}
+                            <form action="{% url 'remove_friend' user.id %}" method="post">
+                                {% csrf_token %}
+                                <button style="margin-top: 15px;" class="btn btn-danger">Удалить из друзей</button>
+                            </form>
+                        {% elif friendship_status == 'pending' %}
+                            {% if is_request_sent %}
+                                <form action="{% url 'cancel_friend_request' friendship_id %}" method="post">
+                                    {% csrf_token %}
+                                    <button style="margin-top: 15px;" class="btn btn-secondary">Отменить заявку</button>
+                                </form>
+                            {% else %}
+                                <form action="{% url 'accept_friend_request' friendship_id %}" method="post">
+                                    {% csrf_token %}
+                                    <button class="btn btn-success">Принять заявку</button>
+                                </form>
+                            {% endif %}
+                        {% else %}
+                            <form action="{% url 'send_friend_request' user.id %}" method="post">
+                                {% csrf_token %}
+                                <button style="margin-top: 15px;" class="btn btn-primary">Добавить в друзья</button>
+                            </form>
+                        {% endif %}
+                    {% endif %}
                     <div class="actions-group right">
                         <a href="{% url 'messenger_detail' user.id %}"
                            class="btn btn-primary message-btn"
